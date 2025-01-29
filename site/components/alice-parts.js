@@ -110,7 +110,8 @@ class AlicePlayer extends HTMLElement {
 
   connectedCallback() {
     this.width = parseInt(this.getAttribute('width'), 10);
-    this.height = this.width * 9 / 16;
+    this.height = parseInt(this.getAttribute('height'), 10);
+
 
     this.style.width = `${this.width}px`;
     this.style.height = `${this.height}px`;
@@ -230,14 +231,15 @@ class PageController extends HTMLElement {
   }
 
   connectedCallback() {
-    this.playerCount = 1;
+    this.playerCount = 4;
     this.playerCount = 42;
     this.getDimensions();
-    this.playerWidth = Math.floor((this.width - 110) / 7);
+    // this.playerWidth = Math.floor((this.width - 110) / 7);
     const fragment = document.createDocumentFragment();
     for (let count = 0; count < this.playerCount; count += 1) {
       const el = document.createElement('alice-player');
       el.setAttribute('width', this.playerWidth);
+      el.setAttribute('height', this.playerHeight);
       this.players.push(el);
       fragment.appendChild(el);
     }
@@ -263,9 +265,25 @@ class PageController extends HTMLElement {
   }
 
   getDimensions() {
-    this.width = document.documentElement.clientWidth;
-    this.height = document.documentElement.clientHeight;
-    const area = this
+
+    //const totalArea = (document.documentElement.clientWidth - 110) * (document.documentElement.clientHeight * .8);
+    //const playerArea = totalArea / this.playerCount;
+    ////const playerArea = totalArea / 7;
+    //const results = this.widthAndHeightFromAreaAndRatioFloored(playerArea, 16, 9);
+    //this.playerWidth = results.width;
+    //this.playerHeight = results.height;
+
+    this.maxCanvasWidth = document.documentElement.clientWidth - 110;
+    this.playerWidth = 100;
+    this.playerHeight = 48;
+    for (let i = 1; i < 100; i += 2) {
+      const checkWidth = Math.floor(this.maxCanvasWidth / i);
+      if (checkWidth < 150) {
+        this.playerWidth = checkWidth;
+        this.playerHeight = checkWidth * 9 / 16;
+        break;
+      }
+    }
 
   }
 
@@ -296,6 +314,19 @@ class PageController extends HTMLElement {
       this.state = "stopped";
     }
   }
+
+  widthAndHeightFromAreaAndRatioFloored(area, ratioWidth, ratioHeight) {
+    const ratio = ratioHeight / ratioWidth;
+    const width = Math.floor(Math.sqrt(area / ratio));
+    const height = Math.floor(Math.sqrt(area * ratio));
+    const coverage = width * height;
+    return { 
+      "width": width, 
+      "height": height,
+      "coverage": coverage
+    };
+  }
+
 }
 
 customElements.define('page-controller', PageController);
