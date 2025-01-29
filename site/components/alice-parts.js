@@ -262,12 +262,15 @@ class PageController extends HTMLElement {
       const el = document.createElement('alice-player');
       el.setAttribute('width', this.playerWidth);
       el.setAttribute('height', this.playerHeight);
-      let currentColumn = (count % this.playerColumns) + 1; 
-      let currentRow = Math.floor(count / this.playerColumns) + 1;
-      console.log(`${this.playerColumns} ${currentColumn} - ${this.playerRows} ${currentRow}`);
-
+      let currentColumn = (count % this.playerColumns); 
+      let currentRow = Math.floor(count / this.playerColumns);
+      const absoluteColumnOffset = Math.abs(this.centerColumn - currentColumn);
+      const absoluteRowOffset = Math.abs(this.centerRow - currentRow);
+      const absoluteOffset = absoluteColumnOffset + absoluteRowOffset;
+      //console.log(`${absoluteColumnOffset} - ${absoluteRowOffset}`);
+      // console.log(`${this.playerColumns} ${currentColumn} - ${this.playerRows} ${currentRow}`);
       // console.log(this.playerColumns);
-      el.setAttribute('debugOffset', 0);
+      el.setAttribute('debugOffset', absoluteOffset);
       if (this.debug === true) {
         el.setAttribute('debug', 'on');
       }
