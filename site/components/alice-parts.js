@@ -6,13 +6,27 @@ aliceSheet.replaceSync(`
 .hidden {
   opacity: 0.2;
 }
-
-
-
 `);
 
 const aliceTemplate = document.createElement('template');
-aliceTemplate.innerHTML = `<div id="wrapper" class="hidden"><div id="player">Player</div></div>`;
+aliceTemplate.innerHTML = `<div id="wrapper" class="hidden"><div id="player"></div></div>`;
+
+const controllerSheet = new CSSStyleSheet();
+controllerSheet.replaceSync(`
+:host {
+  display: inline-block;
+}
+.hidden {
+  opacity: 0.2;
+}
+`);
+
+const controllerTemplate = document.createElement('template');
+controllerTemplate.innerHTML = `
+<div id="loader">Loading...</div>
+<div id="players"></div>
+<div><button id="playButton" class="hidden">Play</button></div>
+`
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -25,8 +39,29 @@ class AlicePlayer extends HTMLElement {
     this.shadowRoot.adoptedStyleSheets = [ aliceSheet ];
     this.shadowRoot.append(aliceTemplate.content.cloneNode(true));
     this.wrapper = this.shadowRoot.querySelector('#wrapper');
+    this.bufferCount = 0;
     this.init();
   }
+
+
+
+
+  handlePlayerStateChange(event) {
+    const playerState = event.target.getPlayerState();
+    console.log(playerState);
+    if (playerState == -1) {
+      if (this.bufferCount > 0) {
+        console.log('ping');
+        const event = new CustomEvent('playerReady', {
+          bubbles: true
+        });
+        this.dispatchEvent(event);
+      }
+    } else if (playerState == YT.PlayerState.BUFFERING) {
+      this.bufferCount += 1;
+    }
+  }
+
 
   async init() {
     this.loadApi()
@@ -38,15 +73,16 @@ class AlicePlayer extends HTMLElement {
         height: '112',
         videoId: 'jt7AF2RCMhg',
         playerVars: {
+          controls: 0,
           playsinline: 1,
         },
         events: {
           onReady: (event) => {
             resolve(player)
           },
-          // onStateChange: (event) => {
-          //   this.handlePlayerStateChange.call(this, event)
-          // },
+          onStateChange: (event) => {
+            this.handlePlayerStateChange.call(this, event)
+          },
         },
       })
     }).then((value) => {
@@ -81,9 +117,10 @@ class AlicePlayer extends HTMLElement {
 
   startVideo() {
     this.player.playVideo();
+    // unhide after the youtube scroller
     setTimeout(() => {
       this.wrapper.classList.remove('hidden');
-    }, 3100);
+    }, 3500);
   }
   
   unMute() {
@@ -100,12 +137,15 @@ class PageController extends HTMLElement {
     this.width = document.documentElement.clientWidth;
     this.height = document.documentElement.clientHeight;
     this.attachShadow({mode: 'open'})
+    this.shadowRoot.adoptedStyleSheets = [ controllerSheet ];
+    this.shadowRoot.append(controllerTemplate.content.cloneNode(true));
     this.players = []
     this.playerCount = 3;
+    this.playersReady = 0;
   }
 
   connectedCallback() {
-    const fragment = new DocumentFragment();
+    const fragment = document.createDocumentFragment();
     for (let count = 0; count < this.playerCount; count += 1) {
       const el = document.createElement('alice-player');
       this.players.push(el);
@@ -119,8 +159,20 @@ class PageController extends HTMLElement {
     button.innerHTML = "play";
     fragment.appendChild(button);
 
-    this.shadowRoot.appendChild(fragment);
-    // this.init();
+    this.shadowRoot.querySelector('#players').appendChild(fragment);
+
+    this.shadowRoot.addEventListener('playerReady', (event) => {
+      this.playersReady += 1;
+      this.shadowRoot.querySelector('#loader').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount}`;
+    })
+
+
+
+
+      // .addEventListener('playerReady', (event) => {
+      //   this.playersReady += 1;
+      //   console.log(`Players Ready: ${this.playersReady}`);
+      // })
 
     // const script = document.createElement('script')
     // script.innerHTML = youtubeScript;
@@ -128,10 +180,12 @@ class PageController extends HTMLElement {
     // const iframeScript = document.createElement('script');
     // iframeScript.src = 'https://www.youtube.com/iframe_api';
     // this.shadowRoot.appendChild(iframeScript);
+
   }
 
   async handleButtonClick() {
-    for (let count = 0; count <= this.players.length; count += 1) {
+    this.players[7].unMute();
+    for (let count = 0; count < this.players.length; count += 1) {
 
       // const player = this.players[count].object;
       // if (count === 8 ) {
