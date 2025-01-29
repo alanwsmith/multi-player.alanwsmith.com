@@ -332,30 +332,6 @@ class PageController extends HTMLElement {
     }
   }
 
-  // async handlePlayButtonClickOriginal() {
-  //   if (this.state === "stopped") {
-  //     this.shadowRoot.querySelector('#loader').innerHTML = `<div id="playing">Playing</div>`;
-  //     setTimeout(() => {
-  //     this.shadowRoot.querySelector('#playing').classList.add('hidden');
-  //     }, 100);
-  //     this.players[this.audioPlayerIndex].unMute();
-  //     for (let count = 0; count < this.players.length; count += 1) {
-  //       setTimeout(() => {
-  //         this.players[count].startVideo();
-  //       }, count * 34);
-  //     }
-  //     this.state = "playing";
-  //   } else {
-  //     this.players[this.audioPlayerIndex].mute();
-  //     for (let count = 0; count < this.players.length; count += 1) {
-  //       setTimeout(() => {
-  //         this.players[count].stopVideo();
-  //       }, count * 34);
-  //     }
-  //     this.state = "stopped";
-  //   }
-  // }
-
   async handlePlayButtonClick() {
     if (this.state === "stopped") {
       this.shadowRoot.querySelector('#loader').innerHTML = `<div id="playing">Playing</div>`;
@@ -366,7 +342,7 @@ class PageController extends HTMLElement {
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
           this.players[count].startVideo();
-        }, this.playerOffsets[count]);
+        }, count * 34);
       }
       this.state = "playing";
     } else {
@@ -374,11 +350,35 @@ class PageController extends HTMLElement {
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
           this.players[count].stopVideo();
-        }, this.playerOffsets[count]);
+        }, count * 34);
       }
       this.state = "stopped";
     }
   }
+
+  // async handlePlayButtonClickStarPatternNotAsGood() {
+  //   if (this.state === "stopped") {
+  //     this.shadowRoot.querySelector('#loader').innerHTML = `<div id="playing">Playing</div>`;
+  //     setTimeout(() => {
+  //     this.shadowRoot.querySelector('#playing').classList.add('hidden');
+  //     }, 100);
+  //     this.players[this.audioPlayerIndex].unMute();
+  //     for (let count = 0; count < this.players.length; count += 1) {
+  //       setTimeout(() => {
+  //         this.players[count].startVideo();
+  //       }, this.playerOffsets[count]);
+  //     }
+  //     this.state = "playing";
+  //   } else {
+  //     this.players[this.audioPlayerIndex].mute();
+  //     for (let count = 0; count < this.players.length; count += 1) {
+  //       setTimeout(() => {
+  //         this.players[count].stopVideo();
+  //       }, this.playerOffsets[count]);
+  //     }
+  //     this.state = "stopped";
+  //   }
+  // }
 
 }
 
