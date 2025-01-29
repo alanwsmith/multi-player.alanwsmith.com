@@ -2,9 +2,17 @@ const aliceSheet = new CSSStyleSheet();
 aliceSheet.replaceSync(`
 :host {
   display: inline-block;
+  margin: 0;
 }
 .hidden {
-  opacity: 0.2;
+  opacity: 0;
+}
+#wrapper {
+  transition: opacity 0.9s ease-in;
+}
+
+#wrapper.hidden {
+  transition: opacity 0s;
 }
 `);
 const aliceTemplate = document.createElement('template');
@@ -13,35 +21,66 @@ aliceTemplate.innerHTML = `<div id="wrapper" class="hidden"><div id="player"></d
 const controllerSheet = new CSSStyleSheet();
 controllerSheet.replaceSync(`
 :host {
-  display: inline-block;
+  display: block;
+  margin: 0;
 }
 .hidden {
   opacity: 0.2;
 }
+
 #canvas {
+  margin-top: 2rem;
   position: relative;
-  width: 98vw;
-  height: 98vh;
+  width: calc(100vw - 100px);
+  height: 80vh;
+  margin-inline: auto;
+  background: blue;
 }
+
 #loader {
   position: absolute;
   width: 100%;
   height: 100%;
   z-index: 2;
+  background: maroon;
+  opacity: 0.4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+/*
 #players{
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: auto;
   z-index: 1;
 }
+*/
+
+.warning {
+  margin-block: 1rem;
+}
+
 
 `);
 const controllerTemplate = document.createElement('template');
 controllerTemplate.innerHTML = `
 <div id="canvas">
+  <div id="loader">
+    <div>
+      <div class="message">
+        <div>This page uses a lot of bandwidth.</div>
+        <div>Using it on a mobile connection is not recommended.</div>
+        <div class="warning">
+          <div>The visuals include flashing lights which may</div>
+          <div>affect sensitive viewers.</div>
+        </div>
+      </div>
+      <div id="status">Preparing...</div>
+    </div>
+  </div>
   <div id="players"></div>
-  <div id="loader">Preparing...</div>
   <!--
   <div><button id="playButton" class="hidden">Play</button></div>
   -->
@@ -86,12 +125,22 @@ class AlicePlayer extends HTMLElement {
   async init() {
     this.loadApi()
     await this.apiLoader
+    const apiEvent = new CustomEvent('apiLoaded', {
+      bubbles: true,
+    });
+    this.dispatchEvent(apiEvent);
     const videoEl = this.shadowRoot.querySelector(`#player`)
     this.player = await new Promise((resolve) => {
       let player = new YT.Player(videoEl, {
         width: '180',
         height: '112',
         videoId: 'jt7AF2RCMhg',
+        // videoId: 'lmc21V-zBq0',
+        // videoId: 'K0HSD_i2DvA',
+        // videoId: '8bOtuoNFzB0',
+        // videoId: 'REPPgPcw4hk',
+        // videoId: 'dAwLMS8fgoA',
+        // videoId: 'qrrz54UtkCc',
         playerVars: {
           controls: 0,
           playsinline: 1,
@@ -166,18 +215,21 @@ class PageController extends HTMLElement {
     this.shadowRoot.adoptedStyleSheets = [ controllerSheet ];
     this.shadowRoot.append(controllerTemplate.content.cloneNode(true));
     this.players = []
-    this.playerCount = 42;
+    // this.playerCount = 42;
+    this.playerCount = 1;
     this.playersReady = 0;
     this.state = "stopped";
   }
 
   connectedCallback() {
     const fragment = document.createDocumentFragment();
+
     for (let count = 0; count < this.playerCount; count += 1) {
       const el = document.createElement('alice-player');
       this.players.push(el);
       fragment.appendChild(el);
     }
+
     // this.shadowRoot.querySelector('#playButton').addEventListener('click', () => {
     //   this.handlePlayButtonClick()
     // })
@@ -185,11 +237,15 @@ class PageController extends HTMLElement {
     this.shadowRoot.addEventListener('stopped', () => {
       this.state = 'stopped';
     });
+    this.shadowRoot.addEventListener('apiLoaded', (event) => {
+      this.playersReady += 1;
+      this.shadowRoot.querySelector('#statue').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
+    });
     this.shadowRoot.addEventListener('playerReady', (event) => {
       this.playersReady += 1;
-      this.shadowRoot.querySelector('#loader').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount}`;
-      console.log(`playersReady: ${this.playersReady}`);
-      if (this.playersReady === this.playerCount) {
+      this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
+      // console.log(`playersReady: ${this.playersReady}`);
+      if (this.playersReady === this.playerCount * 2 ) {
        // this.shadowRoot.querySelector('#playButton').classList.remove('hidden');
         this.shadowRoot.querySelector('#canvas').addEventListener(
           'click',
