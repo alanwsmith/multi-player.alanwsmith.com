@@ -111,12 +111,20 @@ class AlicePlayer extends HTMLElement {
   connectedCallback() {
     this.width = parseInt(this.getAttribute('width'), 10);
     this.height = parseInt(this.getAttribute('height'), 10);
+    this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
 
-    // this.style.width = `${this.width}px`;
-    // this.style.height = `${this.height}px`;
-    // this.style.outline = '1px solid maroon';
+    this.debug = this.hasAttribute('debug');
 
-    this.init();
+    if (this.debug === true) {
+      console.log("Debugging on");
+      this.style.width = `${this.width}px`;
+      this.style.height = `${this.height}px`;
+      this.style.outline = '1px solid maroon';
+      this.wrapper.classList.remove('hidden');
+      this.wrapper.innerHTML = this.debugOffset;
+    }
+
+    // this.init();
   }
 
   fadeVolume() {
@@ -241,6 +249,7 @@ class PageController extends HTMLElement {
     this.players = []
     this.playersReady = 0;
     this.state = "stopped";
+    this.debug = true;
   }
 
   connectedCallback() {
@@ -253,6 +262,15 @@ class PageController extends HTMLElement {
       const el = document.createElement('alice-player');
       el.setAttribute('width', this.playerWidth);
       el.setAttribute('height', this.playerHeight);
+      let currentColumn = (count % this.playerColumns) + 1; 
+      let currentRow = Math.floor(count / this.playerColumns) + 1;
+      console.log(`${this.playerColumns} ${currentColumn} - ${this.playerRows} ${currentRow}`);
+
+      // console.log(this.playerColumns);
+      el.setAttribute('debugOffset', 0);
+      if (this.debug === true) {
+        el.setAttribute('debug', 'on');
+      }
       this.players.push(el);
       fragment.appendChild(el);
     }
@@ -292,16 +310,46 @@ class PageController extends HTMLElement {
         this.playerCount = this.playerColumns * this.playerRows;
         if (this.playerRows === 1 || this.playerRows === 2) {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2);
+          this.centerRow = 1;
+          this.centerColumn = Math.floor(this.playerColumns /2);
         } else if (this.playerRows === 3) {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2) + this.playerColumns;
+          this.centerRow = 2;
+          this.centerColumn = Math.floor(this.playerColumns /2);
         } else {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2) + (this.playerColumns * 2);
+          this.centerRow = 3;
+          this.centerColumn = Math.floor(this.playerColumns /2);
         }
-        console.log(`Audio Player Index: ${this.audioPlayerIndex}`);
+        // console.log(`Audio Player Index: ${this.audioPlayerIndex}`);
         break;
       }
     }
   }
+
+  // async handlePlayButtonClickOriginal() {
+  //   if (this.state === "stopped") {
+  //     this.shadowRoot.querySelector('#loader').innerHTML = `<div id="playing">Playing</div>`;
+  //     setTimeout(() => {
+  //     this.shadowRoot.querySelector('#playing').classList.add('hidden');
+  //     }, 100);
+  //     this.players[this.audioPlayerIndex].unMute();
+  //     for (let count = 0; count < this.players.length; count += 1) {
+  //       setTimeout(() => {
+  //         this.players[count].startVideo();
+  //       }, count * 34);
+  //     }
+  //     this.state = "playing";
+  //   } else {
+  //     this.players[this.audioPlayerIndex].mute();
+  //     for (let count = 0; count < this.players.length; count += 1) {
+  //       setTimeout(() => {
+  //         this.players[count].stopVideo();
+  //       }, count * 34);
+  //     }
+  //     this.state = "stopped";
+  //   }
+  // }
 
   async handlePlayButtonClick() {
     if (this.state === "stopped") {
@@ -326,7 +374,9 @@ class PageController extends HTMLElement {
       this.state = "stopped";
     }
   }
+
 }
+
 
 customElements.define('page-controller', PageController);
 
