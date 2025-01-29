@@ -84,6 +84,8 @@ controllerSheet.replaceSync(`
 
 #loader {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   z-index: 4;
@@ -117,6 +119,7 @@ controllerSheet.replaceSync(`
 const controllerTemplate = document.createElement('template');
 controllerTemplate.innerHTML = `
 <div id="canvas">
+  <div id="players"></div>
   <div id="loader">
     <div>
       <div class="message">
@@ -130,7 +133,6 @@ controllerTemplate.innerHTML = `
       <div id="status">Preparing...</div>
     </div>
   </div>
-  <div id="players"></div>
 </div>
 `
 
