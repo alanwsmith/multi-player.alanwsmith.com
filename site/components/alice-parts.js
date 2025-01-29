@@ -65,7 +65,7 @@ controllerSheet.replaceSync(`
 }
 
 #playing {
-  transition: opacity 2.5s ease-in;
+  transition: opacity 2.7s ease-in;
 }
 
 .warning {
@@ -152,7 +152,7 @@ class AlicePlayer extends HTMLElement {
         width: this.width,
         height: this.height,
         videoId: 'jt7AF2RCMhg',
-        // videoId: 'lmc21V-zBq0',
+        endSeconds: 163,
         playerVars: {
           controls: 0,
           playsinline: 1,
@@ -196,7 +196,7 @@ class AlicePlayer extends HTMLElement {
 
   startVideo() {
     this.player.playVideo();
-    // unhide after the youtube scroller
+    // unhide after the youtube ui
     setTimeout(() => {
       this.wrapper.classList.remove('hidden');
     }, 3500);
@@ -270,7 +270,7 @@ class PageController extends HTMLElement {
     // this.playerHeight = 48;
     for (let columns = 1; columns < 100; columns += 2) {
       const checkWidth = Math.floor(this.maxCanvasWidth / columns);
-      if (checkWidth < 150) {
+      if (checkWidth < 170) {
         this.playerWidth = checkWidth;
         this.playerHeight = checkWidth * 9 / 16;
         this.playerColumns = columns;
@@ -315,19 +315,6 @@ class PageController extends HTMLElement {
       this.state = "stopped";
     }
   }
-
-  widthAndHeightFromAreaAndRatioFloored(area, ratioWidth, ratioHeight) {
-    const ratio = ratioHeight / ratioWidth;
-    const width = Math.floor(Math.sqrt(area / ratio));
-    const height = Math.floor(Math.sqrt(area * ratio));
-    const coverage = width * height;
-    return { 
-      "width": width, 
-      "height": height,
-      "coverage": coverage
-    };
-  }
-
 }
 
 customElements.define('page-controller', PageController);
