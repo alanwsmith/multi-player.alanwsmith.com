@@ -7,7 +7,6 @@ aliceSheet.replaceSync(`
   opacity: 0.2;
 }
 `);
-
 const aliceTemplate = document.createElement('template');
 aliceTemplate.innerHTML = `<div id="wrapper" class="hidden"><div id="player"></div></div>`;
 
@@ -19,13 +18,34 @@ controllerSheet.replaceSync(`
 .hidden {
   opacity: 0.2;
 }
-`);
+#canvas {
+  position: relative;
+  width: 98vw;
+  height: 98vh;
+}
+#loader {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+#players{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
 
+`);
 const controllerTemplate = document.createElement('template');
 controllerTemplate.innerHTML = `
-<div id="loader">Loading...</div>
-<div id="players"></div>
-<div><button id="playButton" class="hidden">Play</button></div>
+<div id="canvas">
+  <div id="players"></div>
+  <div id="loader">Preparing...</div>
+  <!--
+  <div><button id="playButton" class="hidden">Play</button></div>
+  -->
+</div>
 `
 
 function sleep(ms) {
@@ -56,9 +76,12 @@ class AlicePlayer extends HTMLElement {
       this.bufferCount += 1;
     } else if (playerState == YT.PlayerState.ENDED) {
       this.wrapper.classList.add('hidden');
+      const stopEvent = new CustomEvent('stopped', {
+          bubbles: true
+      });
+      this.dispatchEvent(stopEvent);
     }
   }
-
 
   async init() {
     this.loadApi()
@@ -86,11 +109,9 @@ class AlicePlayer extends HTMLElement {
       return value
       // TODO: Figure out how to handle errors here.
     })
-    // const wrapper = this.shadowRoot.querySelector(`#player${count}`);
     this.player.mute();
     this.player.playVideo();
     this.player.pauseVideo();
-    // this.players.push({ 'object': player, 'wrapper': wrapper });
   }
 
   loadApi() {
@@ -119,11 +140,19 @@ class AlicePlayer extends HTMLElement {
       this.wrapper.classList.remove('hidden');
     }, 3500);
   }
+
+  stopVideo() {
+    this.wrapper.classList.add('hidden');
+    this.player.stopVideo();
+  }
   
   unMute() {
     this.player.unMute();
   }
 
+  mute() {
+    this.player.mute();
+  }
 }
 
 customElements.define('alice-player', AlicePlayer);
@@ -137,8 +166,9 @@ class PageController extends HTMLElement {
     this.shadowRoot.adoptedStyleSheets = [ controllerSheet ];
     this.shadowRoot.append(controllerTemplate.content.cloneNode(true));
     this.players = []
-    this.playerCount = 20;
+    this.playerCount = 42;
     this.playersReady = 0;
+    this.state = "stopped";
   }
 
   connectedCallback() {
@@ -148,119 +178,52 @@ class PageController extends HTMLElement {
       this.players.push(el);
       fragment.appendChild(el);
     }
-
-    this.shadowRoot.querySelector('#playButton').addEventListener('click', () => {
-      this.handlePlayButtonClick()
-    })
-
-
+    // this.shadowRoot.querySelector('#playButton').addEventListener('click', () => {
+    //   this.handlePlayButtonClick()
+    // })
     this.shadowRoot.querySelector('#players').appendChild(fragment);
-
+    this.shadowRoot.addEventListener('stopped', () => {
+      this.state = 'stopped';
+    });
     this.shadowRoot.addEventListener('playerReady', (event) => {
       this.playersReady += 1;
       this.shadowRoot.querySelector('#loader').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount}`;
       console.log(`playersReady: ${this.playersReady}`);
       if (this.playersReady === this.playerCount) {
-        console.log("asdf");
-        this.shadowRoot.querySelector('#playButton').classList.remove('hidden');
+       // this.shadowRoot.querySelector('#playButton').classList.remove('hidden');
+        this.shadowRoot.querySelector('#canvas').addEventListener(
+          'click',
+          () => {
+            this.handlePlayButtonClick()
+          }
+        )
       }
     })
-
-
-
-
-      // .addEventListener('playerReady', (event) => {
-      //   this.playersReady += 1;
-      //   console.log(`Players Ready: ${this.playersReady}`);
-      // })
-
-    // const script = document.createElement('script')
-    // script.innerHTML = youtubeScript;
-    // this.shadowRoot.appendChild(script);
-    // const iframeScript = document.createElement('script');
-    // iframeScript.src = 'https://www.youtube.com/iframe_api';
-    // this.shadowRoot.appendChild(iframeScript);
-
   }
 
   async handlePlayButtonClick() {
-    if (this.players.length > 7) {
-      this.players[7].unMute();
-    }
-    for (let count = 0; count < this.players.length; count += 1) {
-
-      // const player = this.players[count].object;
-      // if (count === 8 ) {
-      //   player.unMute();
-      // }
-      setTimeout(() => {
-        this.players[count].startVideo();
-      }, count * 34);
-
-      // await sleep(count * 20);
-      // player.playVideo();
+    if (this.state === "stopped") {
+      if (this.players.length > 18) {
+        this.players[17].unMute();
+      }
+      for (let count = 0; count < this.players.length; count += 1) {
+        setTimeout(() => {
+          this.players[count].startVideo();
+        }, count * 34);
+      }
+      this.state = "playing";
+    } else {
+      if (this.players.length > 18) {
+        this.players[17].mute();
+      }
+      for (let count = 0; count < this.players.length; count += 1) {
+        setTimeout(() => {
+          this.players[count].stopVideo();
+        }, count * 34);
+      }
+      this.state = "stopped";
     }
   }
-
-
-  // async init() {
-  //   this.loadApi()
-  //   await this.apiLoader
-  //   for (let count = 0; count < this.playerCount; count += 1) {
-  //     const videoEl = this.shadowRoot.querySelector(`#player${count}`)
-  //     const player = await new Promise((resolve) => {
-  //       let player = new YT.Player(videoEl, {
-  //         width: '180',
-  //         height: '112',
-  //         videoId: 'jt7AF2RCMhg',
-  //         playerVars: {
-  //           playsinline: 1,
-  //         },
-  //         events: {
-  //           onReady: (event) => {
-  //             resolve(player)
-  //           },
-  //           // onStateChange: (event) => {
-  //           //   this.handlePlayerStateChange.call(this, event)
-  //           // },
-  //         },
-  //       })
-  //     }).then((value) => {
-  //       return value
-  //       // TODO: Figure out how to handle errors here.
-  //     })
-  //     const wrapper = this.shadowRoot.querySelector(`#player${count}`);
-  //     player.mute();
-  //     player.playVideo();
-  //     player.pauseVideo();
-  //     this.players.push({ 'object': player, 'wrapper': wrapper });
-  //   }
-  //   // this.cueVideo()
-  //   // this.parts.player = this.shadowRoot.querySelector('#player')
-  //   // this.parts.buttonsMessage.classList.add('hidden')
-  //   // this.parts.buttonsMessage.innerHTML = ""
-  //   // this.parts.buttonsRow.classList.remove('hidden')
-  // }
-
-  // loadApi() {
-  //   // this if is from Paul Irish's embed, not sure why
-  //   // the OR condition with window.YT.Player is there since
-  //   // it seems like the window.YT would always hit first
-  //   if (window.YT || (window.YT && window.YT.Player)) {
-  //     return
-  //   }
-  //   this.apiLoader = new Promise((res, rej) => {
-  //     var el = document.createElement('script')
-  //     el.src = 'https://www.youtube.com/iframe_api'
-  //     el.async = true
-  //     el.onload = (_) => {
-  //       YT.ready(res)
-  //     }
-  //     el.onerror = rej
-  //     this.shadowRoot.append(el)
-  //   })
-  // }
-
 }
 
 customElements.define('page-controller', PageController);
