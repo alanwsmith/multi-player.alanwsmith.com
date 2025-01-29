@@ -36,7 +36,7 @@ controllerSheet.replaceSync(`
 #canvas {
   margin-top: 2rem;
   position: relative;
-  width: calc(100vw - 100px);
+  width: min(calc(100vw - 100px), 900px);
   min-height: 80vh;
   margin-inline: auto;
   background: black;
@@ -265,26 +265,30 @@ class PageController extends HTMLElement {
   }
 
   getDimensions() {
-
-    //const totalArea = (document.documentElement.clientWidth - 110) * (document.documentElement.clientHeight * .8);
-    //const playerArea = totalArea / this.playerCount;
-    ////const playerArea = totalArea / 7;
-    //const results = this.widthAndHeightFromAreaAndRatioFloored(playerArea, 16, 9);
-    //this.playerWidth = results.width;
-    //this.playerHeight = results.height;
-
-    this.maxCanvasWidth = document.documentElement.clientWidth - 110;
+    this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 110), 900);
+    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .8);
     this.playerWidth = 100;
     this.playerHeight = 48;
-    for (let i = 1; i < 100; i += 2) {
-      const checkWidth = Math.floor(this.maxCanvasWidth / i);
+    for (let columns = 1; columns < 100; columns += 2) {
+      const checkWidth = Math.floor(this.maxCanvasWidth / columns);
       if (checkWidth < 150) {
         this.playerWidth = checkWidth;
         this.playerHeight = checkWidth * 9 / 16;
+        this.playerColumns = columns;
+        this.playerRows = Math.floor(this.maxCanvasHeight / this.playerHeight);
+        this.playerCount = this.playerColumns * this.playerRows;
+        if (this.playerRows === 1 || this.playerRows === 2) {
+          this.audioPlayerIndex = Math.floor(this.playerColumns / 2);
+        } else if (this.playerRows === 3) {
+          this.audioPlayerIndex = Math.floor(this.playerColumns / 2) + this.playerColumns;
+        } else {
+          this.audioPlayerIndex = Math.floor(this.playerColumns / 2) + (this.playerColumns * 2);
+        }
+        console.log(this.audioPlayerIndex);
+
         break;
       }
     }
-
   }
 
   async handlePlayButtonClick() {
