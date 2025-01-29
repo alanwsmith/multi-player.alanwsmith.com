@@ -1,3 +1,8 @@
+// There's lots of stuff in here that isn't used for the
+// filmstrip view. It was for different looks. 
+// I may play around with them again in the future
+// so leaving everything in for now. 
+
 const aliceSheet = new CSSStyleSheet();
 aliceSheet.replaceSync(`
 :host {
@@ -26,6 +31,25 @@ aliceSheet.replaceSync(`
   width: 140px;
 }
 */
+
+.top-border {
+  box-shadow: 0px -2px 0px #aaa;
+}
+
+.bottom-border {
+  box-shadow: 0px -2px 0px #aaa;
+}
+
+.left-border {
+  box-shadow: 0px -2px 0px #aaa;
+}
+
+.right-border {
+  box-shadow: 0px -2px 0px #aaa;
+}
+
+
+
 
 `);
 const aliceTemplate = document.createElement('template');
@@ -127,11 +151,15 @@ class AlicePlayer extends HTMLElement {
     this.height = parseInt(this.getAttribute('height'), 10);
     this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
     this.debug = this.hasAttribute('debug');
+    this.borderStyle = this.getAttribute('border-style');
+    console.log(this.borderStyle);
+    this.wrapper.classList.add(this.borderStyle);
+
     if (this.debug === true) {
-      console.log("Debugging on");
+      // console.log("Debugging on");
       this.style.width = `${this.width}px`;
       this.style.height = `${this.height}px`;
-      this.style.outline = '1px solid maroon';
+      // this.style.outline = '1px solid maroon';
       this.wrapper.classList.remove('hidden');
       this.wrapper.innerHTML = this.debugOffset;
     } else {
@@ -288,6 +316,14 @@ class PageController extends HTMLElement {
       }
       let currentColumn = (count % this.playerColumns); 
       let currentRow = Math.floor(count / this.playerColumns);
+
+      if (currentColumn === this.centerColumn && currentRow === 0) {
+        el.setAttribute('border-style', 'top-border');
+      } else {
+        el.setAttribute('border-style', 'no-border');
+      }
+    
+
       const absoluteColumnOffset = Math.abs(this.centerColumn - currentColumn);
       const absoluteRowOffset = Math.abs(this.centerRow - currentRow);
       const absoluteOffset = absoluteColumnOffset + absoluteRowOffset;
