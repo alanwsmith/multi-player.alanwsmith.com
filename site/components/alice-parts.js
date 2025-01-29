@@ -43,15 +43,10 @@ class AlicePlayer extends HTMLElement {
     this.init();
   }
 
-
-
-
   handlePlayerStateChange(event) {
     const playerState = event.target.getPlayerState();
-    console.log(playerState);
     if (playerState == -1) {
       if (this.bufferCount > 0) {
-        console.log('ping');
         const event = new CustomEvent('playerReady', {
           bubbles: true
         });
@@ -59,6 +54,8 @@ class AlicePlayer extends HTMLElement {
       }
     } else if (playerState == YT.PlayerState.BUFFERING) {
       this.bufferCount += 1;
+    } else if (playerState == YT.PlayerState.ENDED) {
+      this.wrapper.classList.add('hidden');
     }
   }
 
@@ -140,7 +137,7 @@ class PageController extends HTMLElement {
     this.shadowRoot.adoptedStyleSheets = [ controllerSheet ];
     this.shadowRoot.append(controllerTemplate.content.cloneNode(true));
     this.players = []
-    this.playerCount = 3;
+    this.playerCount = 20;
     this.playersReady = 0;
   }
 
@@ -152,18 +149,21 @@ class PageController extends HTMLElement {
       fragment.appendChild(el);
     }
 
-    const button = document.createElement('button');
-    button.addEventListener('click', () => {
-      this.handleButtonClick();
-    });
-    button.innerHTML = "play";
-    fragment.appendChild(button);
+    this.shadowRoot.querySelector('#playButton').addEventListener('click', () => {
+      this.handlePlayButtonClick()
+    })
+
 
     this.shadowRoot.querySelector('#players').appendChild(fragment);
 
     this.shadowRoot.addEventListener('playerReady', (event) => {
       this.playersReady += 1;
       this.shadowRoot.querySelector('#loader').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount}`;
+      console.log(`playersReady: ${this.playersReady}`);
+      if (this.playersReady === this.playerCount) {
+        console.log("asdf");
+        this.shadowRoot.querySelector('#playButton').classList.remove('hidden');
+      }
     })
 
 
@@ -183,8 +183,10 @@ class PageController extends HTMLElement {
 
   }
 
-  async handleButtonClick() {
-    this.players[7].unMute();
+  async handlePlayButtonClick() {
+    if (this.players.length > 7) {
+      this.players[7].unMute();
+    }
     for (let count = 0; count < this.players.length; count += 1) {
 
       // const player = this.players[count].object;
@@ -193,7 +195,7 @@ class PageController extends HTMLElement {
       // }
       setTimeout(() => {
         this.players[count].startVideo();
-      }, count * 30);
+      }, count * 34);
 
       // await sleep(count * 20);
       // player.playVideo();
