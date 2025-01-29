@@ -12,13 +12,13 @@
     <meta name="msapplication-config" content="/favicons/browserconfig.xml" />
     <meta name="theme-color" content="#000000" />
 
-    <title>Alice - Down The Rabbit Hole</title>
-    <meta property="og:title" content="Alice - Down The Rabbit Hole" />
-    <meta property="og:description" content="A recreation of a trippy video page I saw years ago" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://alice.alanwsmith.com/" />
+    <title>About Alice - Down The Rabbit Hole</title>
+    <meta property="og:title" content="Aboutn Alice - Down The Rabbit Hole" />
+    <meta property="og:description" content="The story behind a recreation of a trippy video page I saw years ago" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://alice.alanwsmith.com/about/" />
     <meta property="og:image" content="https://alice.alanwsmith.com/images/og-image.jpg" />
-    <meta name="description" content="A recreation of a trippy video page I saw years ago" />
+    <meta name="description" content="The story behind a recreation of a trippy video page I saw years ago" />
     <meta name="twitter:card" content="summary_large_image" />
 
     <style>
@@ -123,7 +123,7 @@ a:hover, a:focus {
 
 body {
   background: var(--background-color);
-  color: var(--primary-color);
+  color: var(--text);
   font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
   font-weight: normal;
   font-size: var(--medium-font-size);
@@ -170,6 +170,8 @@ ul > :where(:not(:first-child)) {
 }
 
 header, footer, main {
+  max-width: var(--medium-width);
+  margin-inline: auto;
 }
 
 footer {
@@ -185,10 +187,50 @@ footer {
     <header>
     </header>
 
-    <main> 
-      <page-controller>
-        <noscript>This page needs JavaScript to run</noscript>
-      </page-controller>
+    <main class="flow"> 
+      <h1>About This Project</h1>
+      <p>
+        This project is a recreation of a page I saw years
+        ago. It used the <a href="https://www.youtube.com/watch?v=jt7AF2RCMhg">same video
+          from the band Pogo </a>
+        with the same filmstrip 
+        style movement. I can't find the original.
+        So, I decided to recreate it. 
+      </p>
+      <h2>Web Components</h2>
+      <p>
+        The page is built from two vanilla javascript web 
+        components. Using components is a bit overkill. 
+        I'm still new to them though. I'm a big fan
+        of the idea that it's good to get reps
+        under your belt on easier things so you've 
+        got better footing when they get harder.
+      </p>
+      <h2>Syncing The Videos</h2>
+      <p>
+        The page automatically determines how may players 
+        to put on the page page based on the browser's
+        window size. The videos are each started with
+        a little delay between them. It works well most
+        of the time on good network connections. Sometimes
+        they don't start when they should and things
+        look a little wonky. 
+      </p>
+      <h2>Two Patterns</h2>
+      <p>If you look at <a href="https://github.com/alanwsmith/alice.alanwsmith.com">
+        the source code</a> you'll see a commented out
+        section for another pattern. It's more of 
+        star where thing expand out from a central frame. 
+        I liked the idea, but it didn't work as well
+        in practice. 
+      </p>
+      <p>
+        I went back to the filmstrip style. I
+        might play around with other patterns at 
+        some point. I like the way it looks for
+        now. 
+      </p>
+
     </main>
 
     <footer>
@@ -196,7 +238,7 @@ footer {
         made by <a href="https://www.alanwsmith.com">alan w smith</a>
       </div>
       <div>
-        <a href="/about/">about</a> ~
+        <a href="/">video page</a> ~
         <a href="https://github.com/alanwsmith/alice.alanwsmith.com">source code</a> ~
         <a href="https://links.alanwsmith.com">other projects</a> ~
         <a href="https://socials.alanwsmith.com">socials</a>
@@ -206,3 +248,4 @@ footer {
     <script type="module" src="/components/alice-parts.js"></script>
   </body>
 </html>
+

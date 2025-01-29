@@ -1,13 +1,20 @@
 const aliceSheet = new CSSStyleSheet();
 aliceSheet.replaceSync(`
 :host {
+  color: #aaa;
   display: inline-block;
   margin: 0;
 }
+/*
+.audio-player {
+  border: 1px solid #aaa;
+}
+*/
 .hidden {
   opacity: 0;
 }
 #wrapper {
+  color: #aaa;
   display: flex;
   transition: opacity 0.9s ease-in;
 }
@@ -34,6 +41,7 @@ controllerSheet.replaceSync(`
   opacity: 0;
 }
 #canvas {
+  color: #aaa;
   margin-top: 2rem;
   position: relative;
   width: min(calc(100vw - 100px), 900px);
@@ -109,6 +117,12 @@ class AlicePlayer extends HTMLElement {
   }
 
   connectedCallback() {
+    this.audioPlayer = this.getAttribute('audio-player') === 'yes' ? true : false;
+    if (this.audioPlayer === true) {
+      this.wrapper.classList.add('audio-player');
+    } else {
+      this.wrapper.classList.remove('audio-player');
+    }
     this.width = parseInt(this.getAttribute('width'), 10);
     this.height = parseInt(this.getAttribute('height'), 10);
     this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
@@ -136,6 +150,10 @@ class AlicePlayer extends HTMLElement {
         this.fadeTimeout = setTimeout(() => {this.fadeVolume()}, 400);
       }
     }
+  }
+
+  fullVolume() {
+    this.player.setVolume(100);
   }
 
   handlePlayerStateChange(event) {
@@ -248,7 +266,7 @@ class PageController extends HTMLElement {
     this.playersReady = 0;
     this.state = "stopped";
     this.debug = true;
-    this.debug = false;
+    // this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
   }
@@ -263,6 +281,11 @@ class PageController extends HTMLElement {
       const el = document.createElement('alice-player');
       el.setAttribute('width', this.playerWidth);
       el.setAttribute('height', this.playerHeight);
+      if (count === this.audioPlayerIndex) {
+        el.setAttribute('audio-player', 'yes');
+      } else {
+        el.setAttribute('audio-player', 'no');
+      }
       let currentColumn = (count % this.playerColumns); 
       let currentRow = Math.floor(count / this.playerColumns);
       const absoluteColumnOffset = Math.abs(this.centerColumn - currentColumn);
@@ -339,6 +362,7 @@ class PageController extends HTMLElement {
       this.shadowRoot.querySelector('#playing').classList.add('hidden');
       }, 100);
       this.players[this.audioPlayerIndex].unMute();
+      this.players[this.audioPlayerIndex].fullVolume()
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
           this.players[count].startVideo();
