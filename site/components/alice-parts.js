@@ -10,11 +10,11 @@ aliceSheet.replaceSync(`
   display: inline-block;
   margin: 0;
 }
-/*
 .audio-player {
-  border: 1px solid #aaa;
+  position: relative;
+  box-shadow: 0px 0px 2px #ccf;
+  z-index: 2;
 }
-*/
 .hidden {
   opacity: 0;
 }
@@ -26,12 +26,19 @@ aliceSheet.replaceSync(`
 #wrapper.hidden {
   transition: opacity 0s;
 }
+
+#wrapper:not(.audio-player) {
+  position: relative;
+  box-shadow: 0px 0px 2px #777;
+}
+
 /*
 #player {
   width: 140px;
 }
 */
 
+/*
 .top-border {
   box-shadow: 0px -2px 0px #aaa;
 }
@@ -41,12 +48,13 @@ aliceSheet.replaceSync(`
 }
 
 .left-border {
-  box-shadow: 0px -2px 0px #aaa;
+  box-shadow: -2px 0px 0px #aaa;
 }
 
 .right-border {
-  box-shadow: 0px -2px 0px #aaa;
+  box-shadow: 2px 0px 0px #aaa;
 }
+*/
 
 
 
@@ -78,7 +86,7 @@ controllerSheet.replaceSync(`
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 2;
+  z-index: 4;
   /*
   background: maroon;
   opacity: 0.4;
@@ -294,7 +302,7 @@ class PageController extends HTMLElement {
     this.playersReady = 0;
     this.state = "stopped";
     this.debug = true;
-    // this.debug = false;
+    this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
   }
@@ -321,10 +329,13 @@ class PageController extends HTMLElement {
         el.setAttribute('border-style', 'top-border');
       } else if (currentColumn === this.centerColumn && currentRow === this.playerRows - 1) {
         el.setAttribute('border-style', 'bottom-border');
+      } else if (currentRow === this.centerRow && currentColumn === 0) {
+        el.setAttribute('border-style', 'left-border');
+      } else if (currentRow === this.centerRow && currentColumn === this.playerColumns - 1) {
+        el.setAttribute('border-style', 'right-border');
       } else {
         el.setAttribute('border-style', 'no-border');
       }
-    
 
       const absoluteColumnOffset = Math.abs(this.centerColumn - currentColumn);
       const absoluteRowOffset = Math.abs(this.centerRow - currentRow);
