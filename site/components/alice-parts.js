@@ -112,11 +112,24 @@ class AlicePlayer extends HTMLElement {
     this.width = parseInt(this.getAttribute('width'), 10);
     this.height = parseInt(this.getAttribute('height'), 10);
 
-    this.style.width = `${this.width}px`;
-    this.style.height = `${this.height}px`;
-    this.style.outline = '1px solid maroon';
+    // this.style.width = `${this.width}px`;
+    // this.style.height = `${this.height}px`;
+    // this.style.outline = '1px solid maroon';
 
-    // this.init();
+    this.init();
+  }
+
+  fadeVolume() {
+    console.log("fade volume");
+    const currentVolume = this.player.getVolume();
+    const isMuted = this.player.isMuted();
+    if (isMuted === false) {
+      console.log(currentVolume);
+      if (currentVolume > 0) {
+        this.player.setVolume(Math.floor(currentVolume / 1.5));
+        this.fadeTimeout = setTimeout(() => {this.fadeVolume()}, 400);
+      }
+    }
   }
 
   handlePlayerStateChange(event) {
@@ -152,7 +165,7 @@ class AlicePlayer extends HTMLElement {
         width: this.width,
         height: this.height,
         videoId: 'jt7AF2RCMhg',
-        endSeconds: 163,
+        endSeconds: 162,
         playerVars: {
           controls: 0,
           playsinline: 1,
@@ -200,6 +213,7 @@ class AlicePlayer extends HTMLElement {
     setTimeout(() => {
       this.wrapper.classList.remove('hidden');
     }, 3500);
+    this.fadeTimeout = setTimeout(() => { this.fadeVolume() }, (158 * 1000));
   }
 
   stopVideo() {
@@ -230,8 +244,8 @@ class PageController extends HTMLElement {
   }
 
   connectedCallback() {
-    this.playerCount = 4;
-    this.playerCount = 42;
+    //this.playerCount = 4;
+    // this.playerCount = 42;
     this.getDimensions();
     // this.playerWidth = Math.floor((this.width - 110) / 7);
     const fragment = document.createDocumentFragment();
@@ -248,7 +262,7 @@ class PageController extends HTMLElement {
     });
     this.shadowRoot.addEventListener('apiLoaded', (event) => {
       this.playersReady += 1;
-      this.shadowRoot.querySelector('#statue').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
+      this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
     });
     this.shadowRoot.addEventListener('playerReady', (event) => {
       this.playersReady += 1;
@@ -283,6 +297,7 @@ class PageController extends HTMLElement {
         } else {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2) + (this.playerColumns * 2);
         }
+        console.log(`Audio Player Index: ${this.audioPlayerIndex}`);
         break;
       }
     }
@@ -294,9 +309,7 @@ class PageController extends HTMLElement {
       setTimeout(() => {
       this.shadowRoot.querySelector('#playing').classList.add('hidden');
       }, 100);
-      if (this.players.length > 18) {
-        this.players[this.audioPlayerIndex].unMute();
-      }
+      this.players[this.audioPlayerIndex].unMute();
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
           this.players[count].startVideo();
@@ -304,9 +317,7 @@ class PageController extends HTMLElement {
       }
       this.state = "playing";
     } else {
-      if (this.players.length > 18) {
-        this.players[this.audioPlayerIndex].mute();
-      }
+      this.players[this.audioPlayerIndex].mute();
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
           this.players[count].stopVideo();
