@@ -112,7 +112,6 @@ class AlicePlayer extends HTMLElement {
     this.width = parseInt(this.getAttribute('width'), 10);
     this.height = parseInt(this.getAttribute('height'), 10);
 
-
     this.style.width = `${this.width}px`;
     this.style.height = `${this.height}px`;
     this.style.outline = '1px solid maroon';
@@ -267,8 +266,8 @@ class PageController extends HTMLElement {
   getDimensions() {
     this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 110), 900);
     this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .8);
-    this.playerWidth = 100;
-    this.playerHeight = 48;
+    // this.playerWidth = 100;
+    // this.playerHeight = 48;
     for (let columns = 1; columns < 100; columns += 2) {
       const checkWidth = Math.floor(this.maxCanvasWidth / columns);
       if (checkWidth < 150) {
@@ -284,8 +283,6 @@ class PageController extends HTMLElement {
         } else {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2) + (this.playerColumns * 2);
         }
-        console.log(this.audioPlayerIndex);
-
         break;
       }
     }
@@ -298,7 +295,7 @@ class PageController extends HTMLElement {
       this.shadowRoot.querySelector('#playing').classList.add('hidden');
       }, 100);
       if (this.players.length > 18) {
-        this.players[17].unMute();
+        this.players[this.audioPlayerIndex].unMute();
       }
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
@@ -308,7 +305,7 @@ class PageController extends HTMLElement {
       this.state = "playing";
     } else {
       if (this.players.length > 18) {
-        this.players[17].mute();
+        this.players[this.audioPlayerIndex].mute();
       }
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
