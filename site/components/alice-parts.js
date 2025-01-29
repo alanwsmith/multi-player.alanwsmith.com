@@ -8,71 +8,16 @@ aliceSheet.replaceSync(`
 const aliceTemplate = document.createElement('template');
 aliceTemplate.innerHTML = `<div id="player">Player</div>`;
 
-const youtubeScript = `
-      // 2. This code loads the IFrame Player API code asynchronously.
-      // var tag = document.createElement('script');
 
-      // tag.src = "https://www.youtube.com/iframe_api";
-      // var firstScriptTag = document.getElementsByTagName('script')[0];
-      // firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-      // 3. This function creates an <iframe> (and YouTube player)
-      //    after the API code downloads.
-      var player;
-      function onYouTubeIframeAPIReady() {
-        player = new YT.Player('player', {
-          height: '390',
-          width: '640',
-          videoId: 'M7lc1UVf-VE',
-          playerVars: {
-            'playsinline': 1
-          },
-          events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-          }
-        });
-      }
-
-      // 4. The API will call this function when the video player is ready.
-      function onPlayerReady(event) {
-        event.target.playVideo();
-      }
-
-      // 5. The API calls this function when the player's state changes.
-      //    The function indicates that when playing a video (state=1),
-      //    the player should play for six seconds and then stop.
-      var done = false;
-      function onPlayerStateChange(event) {
-        if (event.data == YT.PlayerState.PLAYING && !done) {
-          setTimeout(stopVideo, 6000);
-          done = true;
-        }
-      }
-      function stopVideo() {
-        player.stopVideo();
-      }
-      console.log("eeee");
-`
-
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 // class AlicePlayer extends HTMLElement {
-//   constructor() {
-//     super();
-//     this.uuid = self.crypto.randomUUID();
-//     this.attachShadow({mode: 'open'});
-//   }
-//   connectedCallback() {
-//     console.log(this.uuid);
-//     this.shadowRoot.appendChild(aliceTemplate.content.cloneNode(true));
-//     this.shadowRoot.adoptedStyleSheets = [ aliceSheet ];
-//     const scriptEl = document.createElement('script')
-//     scriptEl.innerText = aliceScript;
-//     this.shadowRoot.appendChild(scriptEl);
-//   }
+
 // }
-//
-// customElements.define('alice-player', AlicePlayer)
+
+// customElements.define('alice-player', AlicePlayer);
 
 class PageController extends HTMLElement {
   constructor() {
@@ -81,9 +26,8 @@ class PageController extends HTMLElement {
     this.height = document.documentElement.clientHeight;
     this.attachShadow({mode: 'open'})
     this.players = []
-    this.playerCount = 2;
+    this.playerCount = 20;
   }
-
 
   connectedCallback() {
     const fragment = new DocumentFragment();
@@ -92,6 +36,13 @@ class PageController extends HTMLElement {
       el.id = `player${count}`;
       fragment.appendChild(el);
     }
+
+    const button = document.createElement('button');
+    button.addEventListener('click', () => {
+      this.handleButtonClick();
+    });
+    button.innerHTML = "play";
+    fragment.appendChild(button);
     this.shadowRoot.appendChild(fragment);
     this.init();
 
@@ -101,18 +52,33 @@ class PageController extends HTMLElement {
     // const iframeScript = document.createElement('script');
     // iframeScript.src = 'https://www.youtube.com/iframe_api';
     // this.shadowRoot.appendChild(iframeScript);
-
   }
+
+  async handleButtonClick() {
+    for (let count = 0; count <= this.players.length; count += 1) {
+      const player = this.players[count].object;
+      if (count === 8 ) {
+        player.unMute();
+      }
+      setTimeout(() => {
+        player.playVideo();
+      }, count * 30);
+
+      // await sleep(count * 20);
+      // player.playVideo();
+    }
+  }
+
 
   async init() {
     this.loadApi()
     await this.apiLoader
     for (let count = 0; count < this.playerCount; count += 1) {
       const videoEl = this.shadowRoot.querySelector(`#player${count}`)
-      this.player = await new Promise((resolve) => {
+      const player = await new Promise((resolve) => {
         let player = new YT.Player(videoEl, {
-          width: '200',
-          height: '200',
+          width: '180',
+          height: '112',
           videoId: 'jt7AF2RCMhg',
           playerVars: {
             playsinline: 1,
@@ -130,9 +96,11 @@ class PageController extends HTMLElement {
         return value
         // TODO: Figure out how to handle errors here.
       })
-
-      const player = this.shadowRoot.querySelector(`#player${count}`);
-      this.players.push(player);
+      const wrapper = this.shadowRoot.querySelector(`#player${count}`);
+      player.mute();
+      player.playVideo();
+      player.pauseVideo();
+      this.players.push({ 'object': player, 'wrapper': wrapper });
     }
 
     // this.cueVideo()
@@ -164,7 +132,7 @@ class PageController extends HTMLElement {
   
 }
 
-customElements.define('page-controller', PageController)
+customElements.define('page-controller', PageController);
 
 
 
