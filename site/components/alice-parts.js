@@ -274,7 +274,7 @@ class PageController extends HTMLElement {
         this.playerWidth = checkWidth;
         this.playerHeight = checkWidth * 9 / 16;
         this.playerColumns = columns;
-        this.playerRows = Math.floor(this.maxCanvasHeight / this.playerHeight);
+        this.playerRows = Math.min(Math.floor(this.maxCanvasHeight / this.playerHeight), 7);
         this.playerCount = this.playerColumns * this.playerRows;
         if (this.playerRows === 1 || this.playerRows === 2) {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2);
