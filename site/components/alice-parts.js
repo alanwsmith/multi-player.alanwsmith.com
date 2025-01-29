@@ -12,7 +12,7 @@ aliceSheet.replaceSync(`
 }
 .audio-player {
   position: relative;
-  box-shadow: 0px 0px 2px #ccf;
+  box-shadow: 0px 0px 3px #999;
   z-index: 2;
 }
 .hidden {
@@ -361,7 +361,9 @@ class PageController extends HTMLElement {
     });
     this.shadowRoot.addEventListener('playerReady', (event) => {
       this.playersReady += 1;
-      this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
+      if (this.shadowRoot.querySelector('#status')) {
+        this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
+      }
       // console.log(`playersReady: ${this.playersReady}`);
       if (this.playersReady === this.playerCount * 2 ) {
        // this.shadowRoot.querySelector('#playButton').classList.remove('hidden');
@@ -389,7 +391,7 @@ class PageController extends HTMLElement {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2);
           this.centerRow = 0;
           this.centerColumn = Math.floor(this.playerColumns /2);
-        } else if (this.playerRows === 3) {
+        } else if (this.playerRows === 3 || this.playerRows === 4) {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2) + this.playerColumns;
           this.centerRow = 1;
           this.centerColumn = Math.floor(this.playerColumns /2);
