@@ -112,9 +112,7 @@ class AlicePlayer extends HTMLElement {
     this.width = parseInt(this.getAttribute('width'), 10);
     this.height = parseInt(this.getAttribute('height'), 10);
     this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
-
     this.debug = this.hasAttribute('debug');
-
     if (this.debug === true) {
       console.log("Debugging on");
       this.style.width = `${this.width}px`;
@@ -122,9 +120,9 @@ class AlicePlayer extends HTMLElement {
       this.style.outline = '1px solid maroon';
       this.wrapper.classList.remove('hidden');
       this.wrapper.innerHTML = this.debugOffset;
+    } else {
+      this.init();
     }
-
-    // this.init();
   }
 
   fadeVolume() {
@@ -246,10 +244,13 @@ class PageController extends HTMLElement {
     this.attachShadow({mode: 'open'})
     this.shadowRoot.adoptedStyleSheets = [ controllerSheet ];
     this.shadowRoot.append(controllerTemplate.content.cloneNode(true));
-    this.players = []
+    this.players = [];
     this.playersReady = 0;
     this.state = "stopped";
     this.debug = true;
+    this.debug = false;
+    this.playerOffsets = [];
+    this.offsetPadding = 34;
   }
 
   connectedCallback() {
@@ -270,8 +271,9 @@ class PageController extends HTMLElement {
       //console.log(`${absoluteColumnOffset} - ${absoluteRowOffset}`);
       // console.log(`${this.playerColumns} ${currentColumn} - ${this.playerRows} ${currentRow}`);
       // console.log(this.playerColumns);
-      el.setAttribute('debugOffset', absoluteOffset);
+      this.playerOffsets.push(absoluteOffset * this.offsetPadding);
       if (this.debug === true) {
+        el.setAttribute('debugOffset', absoluteOffset);
         el.setAttribute('debug', 'on');
       }
       this.players.push(el);
@@ -364,7 +366,7 @@ class PageController extends HTMLElement {
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
           this.players[count].startVideo();
-        }, count * 34);
+        }, this.playerOffsets[count]);
       }
       this.state = "playing";
     } else {
@@ -372,7 +374,7 @@ class PageController extends HTMLElement {
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
           this.players[count].stopVideo();
-        }, count * 34);
+        }, this.playerOffsets[count]);
       }
       this.state = "stopped";
     }
