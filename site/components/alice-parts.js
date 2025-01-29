@@ -37,7 +37,7 @@ aliceSheet.replaceSync(`
 }
 
 .bottom-border {
-  box-shadow: 0px -2px 0px #aaa;
+  box-shadow: 0px 2px 0px #aaa;
 }
 
 .left-border {
@@ -159,7 +159,7 @@ class AlicePlayer extends HTMLElement {
       // console.log("Debugging on");
       this.style.width = `${this.width}px`;
       this.style.height = `${this.height}px`;
-      // this.style.outline = '1px solid maroon';
+      this.style.outline = '1px solid maroon';
       this.wrapper.classList.remove('hidden');
       this.wrapper.innerHTML = this.debugOffset;
     } else {
@@ -319,6 +319,8 @@ class PageController extends HTMLElement {
 
       if (currentColumn === this.centerColumn && currentRow === 0) {
         el.setAttribute('border-style', 'top-border');
+      } else if (currentColumn === this.centerColumn && currentRow === this.playerRows - 1) {
+        el.setAttribute('border-style', 'bottom-border');
       } else {
         el.setAttribute('border-style', 'no-border');
       }
