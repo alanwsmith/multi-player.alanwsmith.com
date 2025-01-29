@@ -8,9 +8,9 @@ aliceSheet.replaceSync(`
   opacity: 0;
 }
 #wrapper {
+  display: flex;
   transition: opacity 0.9s ease-in;
 }
-
 #wrapper.hidden {
   transition: opacity 0s;
 }
@@ -25,16 +25,15 @@ controllerSheet.replaceSync(`
   margin: 0;
 }
 .hidden {
-  opacity: 0.2;
+  opacity: 0;
 }
-
 #canvas {
   margin-top: 2rem;
   position: relative;
   width: calc(100vw - 100px);
-  height: 80vh;
+  min-height: 80vh;
   margin-inline: auto;
-  background: blue;
+  background: black;
 }
 
 #loader {
@@ -42,21 +41,24 @@ controllerSheet.replaceSync(`
   width: 100%;
   height: 100%;
   z-index: 2;
+  /*
   background: maroon;
   opacity: 0.4;
+  */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/*
 #players{
-  position: absolute;
-  width: auto;
-  height: auto;
+  display: flex;
+  flex-wrap: wrap;
   z-index: 1;
 }
-*/
+
+#playing {
+  transition: opacity 2.5s ease-in;
+}
 
 .warning {
   margin-block: 1rem;
@@ -81,9 +83,6 @@ controllerTemplate.innerHTML = `
     </div>
   </div>
   <div id="players"></div>
-  <!--
-  <div><button id="playButton" class="hidden">Play</button></div>
-  -->
 </div>
 `
 
@@ -135,12 +134,6 @@ class AlicePlayer extends HTMLElement {
         width: '180',
         height: '112',
         videoId: 'jt7AF2RCMhg',
-        // videoId: 'lmc21V-zBq0',
-        // videoId: 'K0HSD_i2DvA',
-        // videoId: '8bOtuoNFzB0',
-        // videoId: 'REPPgPcw4hk',
-        // videoId: 'dAwLMS8fgoA',
-        // videoId: 'qrrz54UtkCc',
         playerVars: {
           controls: 0,
           playsinline: 1,
@@ -215,8 +208,8 @@ class PageController extends HTMLElement {
     this.shadowRoot.adoptedStyleSheets = [ controllerSheet ];
     this.shadowRoot.append(controllerTemplate.content.cloneNode(true));
     this.players = []
-    // this.playerCount = 42;
-    this.playerCount = 1;
+    this.playerCount = 10;
+    this.playerCount = 42;
     this.playersReady = 0;
     this.state = "stopped";
   }
@@ -229,10 +222,6 @@ class PageController extends HTMLElement {
       this.players.push(el);
       fragment.appendChild(el);
     }
-
-    // this.shadowRoot.querySelector('#playButton').addEventListener('click', () => {
-    //   this.handlePlayButtonClick()
-    // })
     this.shadowRoot.querySelector('#players').appendChild(fragment);
     this.shadowRoot.addEventListener('stopped', () => {
       this.state = 'stopped';
@@ -248,10 +237,7 @@ class PageController extends HTMLElement {
       if (this.playersReady === this.playerCount * 2 ) {
        // this.shadowRoot.querySelector('#playButton').classList.remove('hidden');
         this.shadowRoot.querySelector('#canvas').addEventListener(
-          'click',
-          () => {
-            this.handlePlayButtonClick()
-          }
+          'click', () => { this.handlePlayButtonClick() }
         )
       }
     })
@@ -259,6 +245,10 @@ class PageController extends HTMLElement {
 
   async handlePlayButtonClick() {
     if (this.state === "stopped") {
+      this.shadowRoot.querySelector('#loader').innerHTML = `<div id="playing">Playing</div>`;
+      setTimeout(() => {
+      this.shadowRoot.querySelector('#playing').classList.add('hidden');
+      }, 100);
       if (this.players.length > 18) {
         this.players[17].unMute();
       }
