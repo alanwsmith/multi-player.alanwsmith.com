@@ -14,6 +14,12 @@ aliceSheet.replaceSync(`
 #wrapper.hidden {
   transition: opacity 0s;
 }
+/*
+#player {
+  width: 140px;
+}
+*/
+
 `);
 const aliceTemplate = document.createElement('template');
 aliceTemplate.innerHTML = `<div id="wrapper" class="hidden"><div id="player"></div></div>`;
@@ -53,6 +59,8 @@ controllerSheet.replaceSync(`
 #players{
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
   z-index: 1;
 }
 
@@ -98,6 +106,16 @@ class AlicePlayer extends HTMLElement {
     this.shadowRoot.append(aliceTemplate.content.cloneNode(true));
     this.wrapper = this.shadowRoot.querySelector('#wrapper');
     this.bufferCount = 0;
+  }
+
+  connectedCallback() {
+    this.width = parseInt(this.getAttribute('width'), 10);
+    this.height = this.width * 9 / 16;
+
+    // this.style.width = `${this.width}px`;
+    // this.style.height = `${this.height}px`;
+    // this.style.outline = '1px solid maroon';
+
     this.init();
   }
 
@@ -131,9 +149,10 @@ class AlicePlayer extends HTMLElement {
     const videoEl = this.shadowRoot.querySelector(`#player`)
     this.player = await new Promise((resolve) => {
       let player = new YT.Player(videoEl, {
-        width: '180',
-        height: '112',
+        width: this.width,
+        height: this.height,
         videoId: 'jt7AF2RCMhg',
+        // videoId: 'lmc21V-zBq0',
         playerVars: {
           controls: 0,
           playsinline: 1,
@@ -203,12 +222,13 @@ class PageController extends HTMLElement {
   constructor() {
     super()
     this.width = document.documentElement.clientWidth;
+    this.playerWidth = Math.floor((this.width - 110) / 7);
     this.height = document.documentElement.clientHeight;
     this.attachShadow({mode: 'open'})
     this.shadowRoot.adoptedStyleSheets = [ controllerSheet ];
     this.shadowRoot.append(controllerTemplate.content.cloneNode(true));
     this.players = []
-    this.playerCount = 10;
+    this.playerCount = 1;
     this.playerCount = 42;
     this.playersReady = 0;
     this.state = "stopped";
@@ -216,9 +236,9 @@ class PageController extends HTMLElement {
 
   connectedCallback() {
     const fragment = document.createDocumentFragment();
-
     for (let count = 0; count < this.playerCount; count += 1) {
       const el = document.createElement('alice-player');
+      el.setAttribute('width', this.playerWidth);
       this.players.push(el);
       fragment.appendChild(el);
     }
