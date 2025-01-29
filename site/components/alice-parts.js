@@ -313,16 +313,16 @@ class PageController extends HTMLElement {
         this.playerCount = this.playerColumns * this.playerRows;
         if (this.playerRows === 1 || this.playerRows === 2) {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2);
-          this.centerRow = 1;
+          this.centerRow = 0;
           this.centerColumn = Math.floor(this.playerColumns /2);
         } else if (this.playerRows === 3) {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2) + this.playerColumns;
-          this.centerRow = 2;
+          this.centerRow = 1;
           this.centerColumn = Math.floor(this.playerColumns /2);
         } else {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2) + (this.playerColumns * 2);
-          this.centerRow = 3;
-          this.centerColumn = Math.floor(this.playerColumns /2);
+          this.centerRow = 2;
+          this.centerColumn = Math.floor(this.playerColumns / 2);
         }
         // console.log(`Audio Player Index: ${this.audioPlayerIndex}`);
         break;
