@@ -112,11 +112,11 @@ class AlicePlayer extends HTMLElement {
     this.width = parseInt(this.getAttribute('width'), 10);
     this.height = this.width * 9 / 16;
 
-    // this.style.width = `${this.width}px`;
-    // this.style.height = `${this.height}px`;
-    // this.style.outline = '1px solid maroon';
+    this.style.width = `${this.width}px`;
+    this.style.height = `${this.height}px`;
+    this.style.outline = '1px solid maroon';
 
-    this.init();
+    // this.init();
   }
 
   handlePlayerStateChange(event) {
@@ -221,20 +221,19 @@ customElements.define('alice-player', AlicePlayer);
 class PageController extends HTMLElement {
   constructor() {
     super()
-    this.width = document.documentElement.clientWidth;
-    this.playerWidth = Math.floor((this.width - 110) / 7);
-    this.height = document.documentElement.clientHeight;
     this.attachShadow({mode: 'open'})
     this.shadowRoot.adoptedStyleSheets = [ controllerSheet ];
     this.shadowRoot.append(controllerTemplate.content.cloneNode(true));
     this.players = []
-    this.playerCount = 1;
-    this.playerCount = 42;
     this.playersReady = 0;
     this.state = "stopped";
   }
 
   connectedCallback() {
+    this.playerCount = 1;
+    this.playerCount = 42;
+    this.getDimensions();
+    this.playerWidth = Math.floor((this.width - 110) / 7);
     const fragment = document.createDocumentFragment();
     for (let count = 0; count < this.playerCount; count += 1) {
       const el = document.createElement('alice-player');
@@ -261,6 +260,13 @@ class PageController extends HTMLElement {
         )
       }
     })
+  }
+
+  getDimensions() {
+    this.width = document.documentElement.clientWidth;
+    this.height = document.documentElement.clientHeight;
+    const area = this
+
   }
 
   async handlePlayButtonClick() {
