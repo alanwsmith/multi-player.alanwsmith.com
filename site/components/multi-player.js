@@ -530,7 +530,7 @@ class PageController extends HTMLElement {
         this.shadowRoot.querySelector('#status').innerHTML = `Loading: ${this.playersReady} of ${this.playerCount}`;
       }
     } else {
-      this.shadowRoot.querySelector('#status').innerHTML = `Preparing...`;
+      this.shadowRoot.querySelector('#status').innerHTML = `Preparing... (please stand by)`;
     }
   }
 
