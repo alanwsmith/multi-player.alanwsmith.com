@@ -69,7 +69,7 @@ controllerSheet.replaceSync(`
   margin-top: 2rem;
   position: relative;
   width: min(calc(100vw - 40px), 1300px);
-  min-height: 80vh;
+  min-height: 86vh;
   margin-inline: auto;
   background: black;
 }
@@ -120,6 +120,7 @@ controllerTemplate.innerHTML = `
   <div id="click-layer"><div>
   <div id="loader">
     <div class="flow message">
+      <h1>Multi-Player</h1>
       <div>This page uses a lot of bandwidth.</div>
       <div>Using it on a mobile connection is not recommended.</div>
       <div>
@@ -129,7 +130,7 @@ controllerTemplate.innerHTML = `
       <div>
         <label for="url">YouTube URL</label>
         <div>
-          <input type="text" id="url" value="https://www.youtube.com/watch?v=m8vOrXIys6o" size="60" />
+          <input type="text" id="url" value="https://www.youtube.com/watch?v=REPPgPcw4hk" size="60" />
         </div>
       </div>
       <div id="status">Preparing...</div>
@@ -431,7 +432,7 @@ class PageController extends HTMLElement {
   getDimensions() {
     this.log("getDimensions");
     this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 50), 1300);
-    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .8);
+    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .86);
     // this.playerWidth = 100;
     // this.playerHeight = 48;
     for (let columns = 1; columns < 100; columns += 2) {
@@ -529,6 +530,7 @@ class PageController extends HTMLElement {
 
   prepVideo() {
     this.log('prepVideo');
+    this.players = [];
     this.getDimensions();
     const urlInput = this.shadowRoot.querySelector('#url').value;
     const urlParams = new URL(urlInput).searchParams;
