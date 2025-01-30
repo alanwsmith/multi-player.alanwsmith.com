@@ -10,8 +10,6 @@ aliceSheet.replaceSync(`
   display: inline-block;
   margin: 0;
 }
-
-
 .hidden {
   opacity: 0;
 }
@@ -23,7 +21,6 @@ aliceSheet.replaceSync(`
 #wrapper.hidden {
   transition: opacity 0s;
 }
-
 /*
 .audio-player {
   position: relative;
@@ -35,34 +32,25 @@ aliceSheet.replaceSync(`
   box-shadow: 0px 0px 2px #777;
 }
 */
-
 /*
 #player {
   width: 140px;
 }
 */
-
 /*
 .top-border {
   box-shadow: 0px -2px 0px #aaa;
 }
-
 .bottom-border {
   box-shadow: 0px 2px 0px #aaa;
 }
-
 .left-border {
   box-shadow: -2px 0px 0px #aaa;
 }
-
 .right-border {
   box-shadow: 2px 0px 0px #aaa;
 }
 */
-
-
-
-
 `);
 const aliceTemplate = document.createElement('template');
 aliceTemplate.innerHTML = `<div id="wrapper" class="hidden"><div id="player"></div></div>`;
@@ -85,11 +73,9 @@ controllerSheet.replaceSync(`
   margin-inline: auto;
   background: black;
 }
-
 .flow > :where(:not(:first-child)) {
   margin-top: var(--flow-space, 1em);
 }
-
 #loader {
   position: absolute;
   top: 0;
@@ -105,11 +91,9 @@ controllerSheet.replaceSync(`
   justify-content: center;
   align-items: center;
 }
-
 .message {
   max-width: 40ch;
 }
-
 #players{
   display: flex;
   flex-wrap: wrap;
@@ -117,12 +101,9 @@ controllerSheet.replaceSync(`
   align-items: center;
   z-index: 1;
 }
-
 #playing {
   transition: opacity 2.7s ease-in;
 }
-
-
 `);
 const controllerTemplate = document.createElement('template');
 controllerTemplate.innerHTML = `
@@ -174,7 +155,7 @@ class AlicePlayer extends HTMLElement {
     this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
     this.debug = this.hasAttribute('debug');
     this.borderStyle = this.getAttribute('border-style');
-    console.log(this.borderStyle);
+    // console.log(this.borderStyle);
     this.wrapper.classList.add(this.borderStyle);
 
     if (this.debug === true) {
@@ -190,11 +171,11 @@ class AlicePlayer extends HTMLElement {
   }
 
   fadeVolume() {
-    console.log("fade volume");
+    //console.log("fade volume");
     const currentVolume = this.player.getVolume();
     const isMuted = this.player.isMuted();
     if (isMuted === false) {
-      console.log(currentVolume);
+      // console.log(currentVolume);
       if (currentVolume > 0) {
         this.player.setVolume(Math.floor(currentVolume / 1.5));
         this.fadeTimeout = setTimeout(() => {this.fadeVolume()}, 400);
@@ -323,6 +304,7 @@ class PageController extends HTMLElement {
     this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
+    this.readyToPlay = false;
   }
 
   connectedCallback() {
@@ -342,7 +324,6 @@ class PageController extends HTMLElement {
       }
       let currentColumn = (count % this.playerColumns); 
       let currentRow = Math.floor(count / this.playerColumns);
-
       if (currentColumn === this.centerColumn && currentRow === 0) {
         el.setAttribute('border-style', 'top-border');
       } else if (currentColumn === this.centerColumn && currentRow === this.playerRows - 1) {
@@ -354,11 +335,10 @@ class PageController extends HTMLElement {
       } else {
         el.setAttribute('border-style', 'no-border');
       }
-
       const absoluteColumnOffset = Math.abs(this.centerColumn - currentColumn);
       const absoluteRowOffset = Math.abs(this.centerRow - currentRow);
       const absoluteOffset = absoluteColumnOffset + absoluteRowOffset;
-      //console.log(`${absoluteColumnOffset} - ${absoluteRowOffset}`);
+      // console.log(`${absoluteColumnOffset} - ${absoluteRowOffset}`);
       // console.log(`${this.playerColumns} ${currentColumn} - ${this.playerRows} ${currentRow}`);
       // console.log(this.playerColumns);
       this.playerOffsets.push(absoluteOffset * this.offsetPadding);
@@ -382,14 +362,18 @@ class PageController extends HTMLElement {
       if (this.shadowRoot.querySelector('#status')) {
         this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
       }
-      // console.log(`playersReady: ${this.playersReady}`);
       if (this.playersReady === this.playerCount * 2 ) {
-       // this.shadowRoot.querySelector('#playButton').classList.remove('hidden');
-        this.shadowRoot.querySelector('#canvas').addEventListener(
-          'click', () => { this.handlePlayButtonClick() }
-        )
+        this.doReadyToPlay();
       }
     })
+  }
+
+  doReadyToPlay() {
+    this.readyToPlay = true;
+    this.shadowRoot.querySelector('#status').innerHTML = 'Click to play';
+    this.shadowRoot.querySelector('#canvas').addEventListener(
+      'click', () => { this.handlePlayButtonClick() }
+    )
   }
 
   getDimensions() {
