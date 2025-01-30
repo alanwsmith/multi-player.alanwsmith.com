@@ -341,6 +341,10 @@ class PageController extends HTMLElement {
       this.updateStatus();
     });
 
+    this.shadowRoot.addEventListener('ended', () => {
+      this.handleEnded();
+    });
+
     this.prepVideo();
 
     // // this.playerWidth = Math.floor((this.width - 110) / 7);
@@ -471,6 +475,7 @@ class PageController extends HTMLElement {
       this.playersReady = 0;
       this.shadowRoot.querySelector('#loader').classList.remove('hidden');
       this.endedState = true;
+      this.state = "stopped";
     }
   }
 
