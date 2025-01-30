@@ -3,6 +3,16 @@
 // I may play around with them again in the future
 // so leaving everything in for now. 
 
+function debounce(callback, wait) {
+  let timeoutId = null;
+  return (...args) => {
+    window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(() => {
+      callback.apply(null, args);
+    }, wait);
+  };
+}
+
 const aliceSheet = new CSSStyleSheet();
 aliceSheet.replaceSync(`
 :host {
@@ -173,13 +183,6 @@ controllerTemplate.innerHTML = `
       The visuals can include flashing lights and motion which may
       affect sensitive viewers.
     </p>
-    <div>
-      <label for="url">YouTube URL</label>
-      <div>
-        <input type="text" id="url" value="" />
-      </div>
-      <div id="status">&nbsp;</div>
-    </div>
     <p>
       Choose an example or use your own YouTube link
     </p>
@@ -190,13 +193,27 @@ controllerTemplate.innerHTML = `
       <button class="example-button" data-id="8bOtuoNFzB0" aria-label="Select">Queen</button>
       <button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift</button>
     </div>
+    <div>
+      <label for="url">YouTube link:</label>
+      <div>
+        <input type="text" id="url" value="" />
+      </div>
+      <div id="status">&nbsp;</div>
+    </div>
     <p>
       Videos with ads won't work well. If the videos
       don't sync well you can try reloading the page.
     </p>
+    <p>
+      I used the player heavily during development without 
+      issue. That said, it sends
+      a lot of requets to YouTube from your connection at the
+      same time. Use at your own risk. 
+    </p>
   </div>
 </div>
 `
+
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -392,7 +409,6 @@ class PageController extends HTMLElement {
 
   connectedCallback() {
     this.input = this.shadowRoot.querySelector('#url');
-
     this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
       this.state = 'changed';
       this.updateStatus();
@@ -426,6 +442,10 @@ class PageController extends HTMLElement {
     });
 
     this.updateMessageCount();
+
+    window.addEventListener("resize", () => {
+      debounce(this.updateMessageCount(), 50);
+    });
 
     // // this.playerWidth = Math.floor((this.width - 110) / 7);
     // const fragment = document.createDocumentFragment();
