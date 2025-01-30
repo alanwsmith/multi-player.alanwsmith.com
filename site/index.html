@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
+    <link rel="manifest" href="/favicons/site.webmanifest" />
+    <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5" />
+    <link rel="shortcut icon" href="/favicons/favicon.ico" />
+    <meta name="msapplication-TileColor" content="#da532c" />
+    <meta name="msapplication-config" content="/favicons/browserconfig.xml" />
+    <meta name="theme-color" content="#000000" />
+
+    <title>Multi-Player</title>
+    <meta property="og:title" content="Multi-Player" />
+    <meta property="og:description" content="A recreation of a trippy video page I saw years ago" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://multi-player.alanwsmith.com/" />
+    <meta property="og:image" content="https://multi-player.alanwsmith.com/images/og-image.jpg" />
+    <meta name="description" content="A recreation of a trippy video page I saw years ago" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <style>
+
+:root {
+
+  --background-color: black;
+  --background-color-2: black;
+  --primary-color: #aaa;
+  --secondary-color: blue;
+  --accent-color-1: green;
+  --accent-color-2: purple;
+  --accent-color-3: goldenrod;
+  --reverse-color: #eee;
+
+  --xxsmall-margin: 0.1rem;
+  --xsmall-margin: 0.3rem;
+  --small-margin: 0.4rem;
+  --medium-margin: 0.6rem;
+  --large-margin: 1.2rem;
+  --xlarge-margin: 2.1em;
+  --xxlarge-margin: 3.2em;
+  --xxxlarge-margin: 3.2em;
+
+  --xxsmall-padding: 0.1rem;
+  --xsmall-padding: 0.3rem;
+  --small-padding: 0.4rem;
+  --medium-padding: 0.6rem;
+  --large-padding: 1.2rem;
+  --xlarge-padding: 2.1em;
+  --xxlarge-padding: 3.2em;
+  --xxxlarge-padding: 3.2em;
+
+  --xxsmall-radius: 0.1rem;
+  --xsmall-radius: 0.2rem;
+  --small-radius: 0.3rem;
+  --medium-radius: 0.4rem;
+  --large-radius: 0.5rem;
+  --xlarge-radius: 0.6rem;
+  --xxlarge-radius: 0.7rem;
+  --xxxlarge-radius: 0.9rem;
+
+  --xxsmall-font-size: clamp(0.68rem, calc(0.67rem + 0.03vw), 0.70rem);
+  --xsmall-font-size: clamp(0.78rem, calc(0.77rem + 0.03vw), 0.80rem);
+  --small-font-size: clamp(0.94rem, calc(0.92rem + 0.11vw), 1.00rem);
+  --medium-font-size: clamp(1.00rem, calc(1.00rem + 0.22vw), 1.25rem);
+  --large-font-size: clamp(1.35rem, calc(1.28rem + 0.37vw), 1.56rem);
+  --xlarge-font-size: clamp(1.62rem, calc(1.50rem + 0.58vw), 1.95rem);
+  --xxlarge-font-size: clamp(1.94rem, calc(1.77rem + 0.87vw), 2.44rem);
+  --xxxlarge-font-size: clamp(2.33rem, calc(2.08rem + 1.25vw), 3.05rem);
+
+  --xxsmall-width: min(8rem, 96%);
+  --xsmall-width: min(12rem, 96%);
+  --small-width: min(24rem, 96%);
+  --medium-width: min(34rem, 96%);
+  --large-width: min(46rem, 96%);
+  --xlarge-width: min(58rem, 96%);
+  --xxlarge-width: min(72rem, 96%);
+  --xxxlarge-width: min(86rem, 96%);
+
+}
+
+/*
+@media (prefers-color-scheme: light) {
+  :root {
+    --text: hsl(340, 26%, 7%);
+    --background: hsl(345, 25%, 97%);
+    --primary: hsl(103, 26%, 24%);
+    --secondary: hsl(342, 25%, 87%);
+    --accent: hsl(224, 26%, 47%);
+  }
+}
+*/
+
+*, 
+*::before, 
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  color-scheme: dark light;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: var(--accent-color-2);
+}
+
+a:hover, a:focus {
+  color: var(--accent-color-3);
+}
+
+body {
+  background: var(--background-color);
+  color: var(--primary-color);
+  font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
+  font-weight: normal;
+  font-size: var(--medium-font-size);
+  line-height: 1.5; 
+}
+
+h1, h2, h3 {
+  line-height: 1.1;
+  color: var(--primary);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--fs-step-4);
+  margin-top: 1em;
+}
+
+h2 {
+  font-size: var(--fs-step-3);
+  --flow-space: 1.3em;
+}
+
+h3 {
+  font-size: var(--fs-step-2);
+  --flow-space: 1.0em;
+}
+
+
+::marker {
+  color: var(--primary);
+}
+
+.wrapper {
+  width: min(100vw - 3rem, 58ch);
+  margin-inline: auto;
+}
+
+.flow > :where(:not(:first-child)) {
+  margin-top: var(--flow-space, 1em);
+}
+
+ul > :where(:not(:first-child)) {
+  margin-top: 1em;
+}
+
+header, footer, main {
+}
+
+footer {
+  font-size: var(--small-font-size);
+  text-align: center;
+}
+
+    </style>
+  </head>
+ 
+  <body>
+    <header>
+    </header>
+
+    <main> 
+      <page-controller>
+        <noscript>This page needs JavaScript to run</noscript>
+      </page-controller>
+    </main>
+
+    <footer>
+      <div>
+        made by <a href="https://www.alanwsmith.com">alan w smith</a>
+      </div>
+      <div>
+        <a href="/about/">about</a> ~
+        <a href="https://github.com/alanwsmith/alice.alanwsmith.com">source code</a> ~
+        <a href="https://links.alanwsmith.com">other projects</a> ~
+        <a href="https://socials.alanwsmith.com">socials</a>
+      </div>
+    </footer>
+
+    <script type="module" src="/components/alice-parts.js"></script>
+  </body>
+</html>
