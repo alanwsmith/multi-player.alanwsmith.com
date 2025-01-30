@@ -9,6 +9,7 @@ aliceSheet.replaceSync(`
   color: #aaa;
   display: inline-block;
   margin: 0;
+  pointer-events: none;
 }
 .hidden {
   opacity: 0;
@@ -71,9 +72,8 @@ controllerSheet.replaceSync(`
   margin-top: 2rem;
   position: relative;
   width: min(calc(100vw - 40px), 1300px);
-  min-height: 94vh;
+  min-height: 90vh;
   margin-inline: auto;
-  outline: 1px solid goldenrod;
 }
 #click-layer{
   postion: absolute:
@@ -153,6 +153,7 @@ controllerTemplate.innerHTML = `
     </div>
     <div>
       Choose an example or use your own YouTube link:
+    </div>
     <ul class="flow">
       <li><button class="example-button" data-id="REPPgPcw4hk" aria-label="Select">CDK - Somebody That I Used To Know</button></li>
       <li><button class="example-button" data-id="jt7AF2RCMhg" aria-label="Select">Pogo - Alice</button></li>
@@ -160,7 +161,7 @@ controllerTemplate.innerHTML = `
       <li><button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift - Fortnight</button></li>
       <li id="debug-button" class="xhidden"><button class="example-button" data-id="m8vOrXIys6o" aria-label="Select">10 Second Test</button></li>
     </ul>
-    </div>
+    <div>Videos with ads won't work well.</div>
   </div>
   <!--
   <div id="loader"></div>
@@ -478,7 +479,7 @@ class PageController extends HTMLElement {
   getDimensions() {
     this.log("getDimensions");
     this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 50), 1300);
-    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .94);
+    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .90);
     // this.playerWidth = 100;
     // this.playerHeight = 48;
     for (let columns = 1; columns < 100; columns += 2) {
