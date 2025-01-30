@@ -10,11 +10,8 @@ aliceSheet.replaceSync(`
   display: inline-block;
   margin: 0;
 }
-.audio-player {
-  position: relative;
-  box-shadow: 0px 0px 3px #999;
-  z-index: 2;
-}
+
+
 .hidden {
   opacity: 0;
 }
@@ -27,10 +24,17 @@ aliceSheet.replaceSync(`
   transition: opacity 0s;
 }
 
+/*
+.audio-player {
+  position: relative;
+  box-shadow: 0px 0px 3px #999;
+  z-index: 2;
+}
 #wrapper:not(.audio-player) {
   position: relative;
   box-shadow: 0px 0px 2px #777;
 }
+*/
 
 /*
 #player {
@@ -76,10 +80,14 @@ controllerSheet.replaceSync(`
   color: #aaa;
   margin-top: 2rem;
   position: relative;
-  width: min(calc(100vw - 100px), 1200px);
+  width: min(calc(100vw - 40px), 1300px);
   min-height: 80vh;
   margin-inline: auto;
   background: black;
+}
+
+.flow > :where(:not(:first-child)) {
+  margin-top: var(--flow-space, 1em);
 }
 
 #loader {
@@ -98,6 +106,10 @@ controllerSheet.replaceSync(`
   align-items: center;
 }
 
+.message {
+  max-width: 40ch;
+}
+
 #players{
   display: flex;
   flex-wrap: wrap;
@@ -110,10 +122,6 @@ controllerSheet.replaceSync(`
   transition: opacity 2.7s ease-in;
 }
 
-.warning {
-  margin-block: 1rem;
-}
-
 
 `);
 const controllerTemplate = document.createElement('template');
@@ -121,13 +129,17 @@ controllerTemplate.innerHTML = `
 <div id="canvas">
   <div id="players"></div>
   <div id="loader">
-    <div>
-      <div class="message">
-        <div>This page uses a lot of bandwidth.</div>
-        <div>Using it on a mobile connection is not recommended.</div>
-        <div class="warning">
-          <div>The visuals include flashing lights which may</div>
-          <div>affect sensitive viewers.</div>
+    <div class="flow message">
+      <div>This page uses a lot of bandwidth.</div>
+      <div>Using it on a mobile connection is not recommended.</div>
+      <div>
+          The visuals include flashing lights which may
+          affect sensitive viewers.
+      </div>
+      <div>
+        <label for="url">YouTube URL</label>
+        <div>
+          <input type="text" id="url" value="https://www.youtube.com/watch?v=8bOtuoNFzB0" size="60" />
         </div>
       </div>
       <div id="status">Preparing...</div>
@@ -207,10 +219,10 @@ class AlicePlayer extends HTMLElement {
       this.bufferCount += 1;
     } else if (playerState == YT.PlayerState.ENDED) {
       this.wrapper.classList.add('hidden');
-      const stopEvent = new CustomEvent('stopped', {
+      const endedEvent = new CustomEvent('ended', {
           bubbles: true
       });
-      this.dispatchEvent(stopEvent);
+      this.dispatchEvent(endedEvent);
     }
   }
 
@@ -226,8 +238,11 @@ class AlicePlayer extends HTMLElement {
       let player = new YT.Player(videoEl, {
         width: this.width,
         height: this.height,
-        videoId: 'jt7AF2RCMhg',
-        endSeconds: 162,
+        //videoId: 'jt7AF2RCMhg',
+        //videoId: '8bOtuoNFzB0',
+        //https://www.youtube.com/watch?v=QUF1uLgzL-s
+        videoId: 'm8vOrXIys6o',
+        //endSeconds: 162,
         playerVars: {
           controls: 0,
           playsinline: 1,
@@ -275,7 +290,7 @@ class AlicePlayer extends HTMLElement {
     setTimeout(() => {
       this.wrapper.classList.remove('hidden');
     }, 3500);
-    this.fadeTimeout = setTimeout(() => { this.fadeVolume() }, (158 * 1000));
+    // this.fadeTimeout = setTimeout(() => { this.fadeVolume() }, (158 * 1000));
   }
 
   stopVideo() {
@@ -303,6 +318,7 @@ class PageController extends HTMLElement {
     this.players = [];
     this.playersReady = 0;
     this.state = "stopped";
+    this.endedState = true;
     this.debug = true;
     this.debug = false;
     this.playerOffsets = [];
@@ -354,8 +370,8 @@ class PageController extends HTMLElement {
       fragment.appendChild(el);
     }
     this.shadowRoot.querySelector('#players').appendChild(fragment);
-    this.shadowRoot.addEventListener('stopped', () => {
-      this.state = 'stopped';
+    this.shadowRoot.addEventListener('ended', () => {
+      this.handleEnded();
     });
     this.shadowRoot.addEventListener('apiLoaded', (event) => {
       this.playersReady += 1;
@@ -377,7 +393,7 @@ class PageController extends HTMLElement {
   }
 
   getDimensions() {
-    this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 110), 1200);
+    this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 50), 1300);
     this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .8);
     // this.playerWidth = 100;
     // this.playerHeight = 48;
@@ -389,6 +405,8 @@ class PageController extends HTMLElement {
         this.playerColumns = columns;
         this.playerRows = Math.min(Math.floor(this.maxCanvasHeight / this.playerHeight), 7);
         this.playerCount = this.playerColumns * this.playerRows;
+        // this sets up to put the audio player in a middle frame
+        // up to three rows down
         if (this.playerRows === 1 || this.playerRows === 2) {
           this.audioPlayerIndex = Math.floor(this.playerColumns / 2);
           this.centerRow = 0;
@@ -402,18 +420,34 @@ class PageController extends HTMLElement {
           this.centerRow = 2;
           this.centerColumn = Math.floor(this.playerColumns / 2);
         }
+        // this moves the audio player to the first cell 
+        // to see which I like better; 
+        // and yeah, I like this one better for now
+        this.audioPlayerIndex = 0;
+        this.centerRow = 1;
+        this.centerColumn = 1;
+
         // console.log(`Audio Player Index: ${this.audioPlayerIndex}`);
         break;
       }
     }
   }
 
+  handleEnded() {
+    console.log('here');
+    if (this.endedState === false) {
+      this.playersReady = 0;
+      this.shadowRoot.querySelector('#loader').classList.remove('hidden');
+      this.endedState = true;
+    }
+  }
+
   async handlePlayButtonClick() {
     if (this.state === "stopped") {
-      this.shadowRoot.querySelector('#loader').innerHTML = `<div id="playing">Playing</div>`;
-      setTimeout(() => {
-      this.shadowRoot.querySelector('#playing').classList.add('hidden');
-      }, 100);
+      this.shadowRoot.querySelector('#loader').classList.add('hidden');
+      // setTimeout(() => {
+      // this.shadowRoot.querySelector('#playing').classList.add('hidden');
+      // }, 100);
       this.players[this.audioPlayerIndex].unMute();
       this.players[this.audioPlayerIndex].fullVolume()
       for (let count = 0; count < this.players.length; count += 1) {
@@ -422,7 +456,10 @@ class PageController extends HTMLElement {
         }, count * 34);
       }
       this.state = "playing";
+      this.endedState = false;
     } else {
+      this.playersReady = 0;
+      this.shadowRoot.querySelector('#loader').classList.remove('hidden');
       this.players[this.audioPlayerIndex].mute();
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
@@ -430,8 +467,11 @@ class PageController extends HTMLElement {
         }, count * 34);
       }
       this.state = "stopped";
+      this.endedState = true;
     }
   }
+
+
 
   // async handlePlayButtonClickStarPatternNotAsGood() {
   //   if (this.state === "stopped") {
