@@ -124,7 +124,7 @@ controllerTemplate.innerHTML = `
       <div>This page uses a lot of bandwidth.</div>
       <div>Using it on a mobile connection is not recommended.</div>
       <div>
-          The visuals include flashing lights which may
+          The visuals can include flashing lights and motion which may
           affect sensitive viewers.
       </div>
       <div>
@@ -230,13 +230,13 @@ class AlicePlayer extends HTMLElement {
       let player = new YT.Player(videoEl, {
         width: this.width,
         height: this.height,
-        //videoId: 'jt7AF2RCMhg',
+        // videoId: 'REPPgPcw4hk' // CDK dancing
+        // videoId: 'q3zqJs7JUCQ' // taylor 
+        //videoId: 'jt7AF2RCMhg', // alice - pogo
+        //videoId: '8bOtuoNFzB0', // star wars queen 
+        //https://www.youtube.com/watch?v=UR62NYvLqCo // dacers with hats
         //
-        //videoId: '8bOtuoNFzB0',
-        //https://www.youtube.com/watch?v=UR62NYvLqCo
-        //https://www.youtube.com/watch?v=QUF1uLgzL-s
-        //
-        // videoId: 'm8vOrXIys6o',
+        // videoId: 'm8vOrXIys6o', // 10 second test
         videoId: this.videoId,
         //endSeconds: 162,
         playerVars: {
@@ -331,6 +331,8 @@ class PageController extends HTMLElement {
     // this.getDimensions();
 
     this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
+      this.state = 'changed';
+      this.updateStatus();
       this.prepVideo();
     });
 
@@ -413,8 +415,12 @@ class PageController extends HTMLElement {
   updateStatus() {
     if (this.state === 'loading') {
       if (this.playersReady === this.playerCount) {
-        this.doReadyToPlay();
+        setTimeout(() => {this.doReadyToPlay()}, 700);
+      } else {
+        this.shadowRoot.querySelector('#status').innerHTML = `Loading: ${this.playersReady} of ${this.playerCount}`;
       }
+    } else {
+      this.shadowRoot.querySelector('#status').innerHTML = `Preparing...`;
     }
   }
 
@@ -461,9 +467,9 @@ class PageController extends HTMLElement {
         // this moves the audio player to the first cell 
         // to see which I like better; 
         // and yeah, I like this one better for now
-        this.audioPlayerIndex = 0;
-        this.centerRow = 1;
-        this.centerColumn = 1;
+        // this.audioPlayerIndex = 0;
+        // this.centerRow = 1;
+        // this.centerColumn = 1;
         // console.log(`Audio Player Index: ${this.audioPlayerIndex}`);
         break;
       }
@@ -528,8 +534,10 @@ class PageController extends HTMLElement {
     }
   }
 
+
   prepVideo() {
     this.log('prepVideo');
+    this.state = 'loading';
     this.players = [];
     this.getDimensions();
     const urlInput = this.shadowRoot.querySelector('#url').value;
