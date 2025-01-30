@@ -176,7 +176,7 @@ controllerTemplate.innerHTML = `
       This page uses a lot of bandwidth. <strong>It will load
       <span id="playerCount">##</span> videos at its current size.</strong> 
       It won't work well without a good network connection 
-      and a newer device. Using it on a mobile 
+      or a newer device. Using it on a mobile 
       network is not recommended.
     </p>
     <p>
