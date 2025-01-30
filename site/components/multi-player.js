@@ -148,6 +148,9 @@ h1 {
 #url {
   width: 90%;
 }
+strong {
+  color: #faa;
+}
 `);
 
 const controllerTemplate = document.createElement('template');
@@ -159,7 +162,9 @@ controllerTemplate.innerHTML = `
   <div id="message" class="flow">
     <h1>Multi-Player</h1>
     <p>
-      This page uses a lot of bandwidth. It
+      This page uses a lot of bandwidth. <strong>It will load
+      <span id="playerCount">##</span> videos at the
+      same time</strong>. It
       won't work well without a good network connection 
       and a newer device. Using it on a mobile 
       network is not recommended.
@@ -185,12 +190,11 @@ controllerTemplate.innerHTML = `
       <button class="example-button" data-id="8bOtuoNFzB0" aria-label="Select">Queen</button>
       <button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift</button>
     </div>
-    <p>Try refreshing the page if videos don't sync well.</p>
-    <p>Videos with ads won't work well.</p>
+    <p>
+      Videos with ads won't work well. If the videos
+      don't sync well you can try reloading the page.
+    </p>
   </div>
-  <!--
-  <div id="loader"></div>
-  -->
 </div>
 `
 
@@ -386,7 +390,6 @@ class PageController extends HTMLElement {
     this.showLogs = true;
   }
 
-
   connectedCallback() {
     this.input = this.shadowRoot.querySelector('#url');
 
@@ -422,6 +425,7 @@ class PageController extends HTMLElement {
       this.handleEnded();
     });
 
+    this.updateMessageCount();
 
     // // this.playerWidth = Math.floor((this.width - 110) / 7);
     // const fragment = document.createDocumentFragment();
@@ -491,6 +495,11 @@ class PageController extends HTMLElement {
     this.input.value = `https://www.youtube.com/watch?v=${event.target.dataset.id}`;
     this.updateStatus();
     this.prepVideo();
+  }
+
+  updateMessageCount() {
+    this.getDimensions();
+    this.shadowRoot.querySelector('#playerCount').innerHTML = this.playerCount;
   }
 
   updateStatus() {
