@@ -73,6 +73,14 @@ controllerSheet.replaceSync(`
   margin-inline: auto;
   background: black;
 }
+#click-layer{
+  postion: absolute:
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
 .flow > :where(:not(:first-child)) {
   margin-top: var(--flow-space, 1em);
 }
@@ -109,6 +117,7 @@ const controllerTemplate = document.createElement('template');
 controllerTemplate.innerHTML = `
 <div id="canvas">
   <div id="players"></div>
+  <div id="click-layer"><div>
   <div id="loader">
     <div class="flow message">
       <div>This page uses a lot of bandwidth.</div>
@@ -220,9 +229,9 @@ class AlicePlayer extends HTMLElement {
         width: this.width,
         height: this.height,
         //videoId: 'jt7AF2RCMhg',
-        //videoId: '8bOtuoNFzB0',
+        videoId: '8bOtuoNFzB0',
         //https://www.youtube.com/watch?v=QUF1uLgzL-s
-        videoId: 'm8vOrXIys6o',
+        // videoId: 'm8vOrXIys6o',
         //endSeconds: 162,
         playerVars: {
           controls: 0,
@@ -305,6 +314,7 @@ class PageController extends HTMLElement {
     this.playerOffsets = [];
     this.offsetPadding = 34;
     this.readyToPlay = false;
+    this.showLogs = true;
   }
 
   connectedCallback() {
@@ -349,6 +359,9 @@ class PageController extends HTMLElement {
       this.players.push(el);
       fragment.appendChild(el);
     }
+    this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
+      console.log('change');
+    });
     this.shadowRoot.querySelector('#players').appendChild(fragment);
     this.shadowRoot.addEventListener('ended', () => {
       this.handleEnded();
@@ -365,18 +378,28 @@ class PageController extends HTMLElement {
       if (this.playersReady === this.playerCount * 2 ) {
         this.doReadyToPlay();
       }
-    })
+    });
+    let clickLayer = this.shadowRoot.querySelector('#click-layer');
+    clickLayer.addEventListener('click', this.handleCanvasClick.bind(this, event));
   }
 
   doReadyToPlay() {
+    this.log("doReadyToPlay");
+    this.state = "stopped";
     this.readyToPlay = true;
-    this.shadowRoot.querySelector('#status').innerHTML = 'Click to play';
-    this.shadowRoot.querySelector('#canvas').addEventListener(
-      'click', () => { this.handlePlayButtonClick() }
-    )
+    this.shadowRoot.querySelector('#status').innerHTML = '<button id="play-button" aria-label="Play">Play</button>';
+    this.shadowRoot.querySelector('#play-button').addEventListener(
+      'click', 
+      this.handlePlayButtonClick.bind(this, event), 
+      {
+        "once": true,
+        "capture": true,
+      }
+    );
   }
 
   getDimensions() {
+    this.log("getDimensions");
     this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 50), 1300);
     this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .8);
     // this.playerWidth = 100;
@@ -410,7 +433,6 @@ class PageController extends HTMLElement {
         this.audioPlayerIndex = 0;
         this.centerRow = 1;
         this.centerColumn = 1;
-
         // console.log(`Audio Player Index: ${this.audioPlayerIndex}`);
         break;
       }
@@ -418,7 +440,7 @@ class PageController extends HTMLElement {
   }
 
   handleEnded() {
-    console.log('here');
+    this.log('handleEnded');
     if (this.endedState === false) {
       this.playersReady = 0;
       this.shadowRoot.querySelector('#loader').classList.remove('hidden');
@@ -427,7 +449,9 @@ class PageController extends HTMLElement {
   }
 
   async handlePlayButtonClick() {
+    this.log("handlePlayButtonClick");
     if (this.state === "stopped") {
+      this.log("state is stopped");
       this.shadowRoot.querySelector('#loader').classList.add('hidden');
       // setTimeout(() => {
       // this.shadowRoot.querySelector('#playing').classList.add('hidden');
@@ -435,13 +459,23 @@ class PageController extends HTMLElement {
       this.players[this.audioPlayerIndex].unMute();
       this.players[this.audioPlayerIndex].fullVolume()
       for (let count = 0; count < this.players.length; count += 1) {
+        this.log(count);
         setTimeout(() => {
           this.players[count].startVideo();
         }, count * 34);
       }
-      this.state = "playing";
-      this.endedState = false;
-    } else {
+      setTimeout(() => { 
+        this.state = "playing";
+        this.endedState = false;
+      }, 200);
+      //this.shadowRoot.querySelector('#canvas').addEventListener('click', this.handlePlayButtonClick);
+    }
+  }
+
+  async handleCanvasClick() {
+    this.log('handleCanvasClick');
+    if (this.state === "playing") {
+      this.log('state: playing');
       this.playersReady = 0;
       this.shadowRoot.querySelector('#loader').classList.remove('hidden');
       this.players[this.audioPlayerIndex].mute();
@@ -455,6 +489,11 @@ class PageController extends HTMLElement {
     }
   }
 
+  log(message) {
+    if (this.debug === true || this.showLogs === true) {
+      console.log(message);
+    }
+  }
 
 
   // async handlePlayButtonClickStarPatternNotAsGood() {
