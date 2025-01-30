@@ -142,7 +142,7 @@ h1 {
 }
 #playing.hidden {
   transition: opacity 2.7s ease-in;
-};
+}
 #url {
   width: 90%;
 }
