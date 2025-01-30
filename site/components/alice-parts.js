@@ -121,8 +121,9 @@ controllerTemplate.innerHTML = `
   <div id="loader">
     <div class="flow message">
       <h1>Multi-Player</h1>
-      <div>This page uses a lot of bandwidth.</div>
-      <div>Using it on a mobile connection is not recommended.</div>
+      <div>
+        This page uses a lot of bandwidth.
+        Using it on a mobile connection is not recommended.</div>
       <div>
           The visuals can include flashing lights and motion which may
           affect sensitive viewers.
@@ -130,10 +131,21 @@ controllerTemplate.innerHTML = `
       <div>
         <label for="url">YouTube URL</label>
         <div>
-          <input type="text" id="url" value="https://www.youtube.com/watch?v=REPPgPcw4hk" size="60" />
+          <input type="text" id="url" value="" size="60" />
         </div>
+        <div id="status">&nbsp;</div>
       </div>
-      <div id="status">Preparing...</div>
+      <div>
+        Choose an example or use your own 
+        YouTube link:
+      <ul class="flow">
+        <li><button class="example-button" data-id="REPPgPcw4hk">CDK - Somebody That I Used To Know</button></li>
+        <li><button class="example-button" data-id="jt7AF2RCMhg">Pogo - Alice</button></li>
+        <li><button class="example-button" data-id="8bOtuoNFzB0">Queen/Star Wars</button></li>
+        <li><button class="example-button" data-id="q3zqJs7JUCQ">Taylor Swift - Fortnight</button></li>
+        <li id="debug-button" class="xhidden"><button class="example-button" data-id="m8vOrXIys6o">10 Second Test</button></li>
+      </ul>
+      </div>
     </div>
   </div>
 </div>
@@ -164,13 +176,13 @@ class AlicePlayer extends HTMLElement {
     this.width = parseInt(this.getAttribute('width'), 10);
     this.height = parseInt(this.getAttribute('height'), 10);
     this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
-    this.debug = this.hasAttribute('debug');
+    this.debug = this.getAttribute('debug') === 'false' ? false : true;
     this.borderStyle = this.getAttribute('border-style');
     this.videoId = this.getAttribute('video-id');
     // console.log(this.borderStyle);
     this.wrapper.classList.add(this.borderStyle);
     if (this.debug === true) {
-      // console.log("Debugging on");
+      this.log("Debugging on");
       this.style.width = `${this.width}px`;
       this.style.height = `${this.height}px`;
       this.style.outline = '1px solid maroon';
@@ -326,14 +338,19 @@ class PageController extends HTMLElement {
   }
 
   connectedCallback() {
-    //this.playerCount = 4;
-    // this.playerCount = 42;
-    // this.getDimensions();
+    this.input = this.shadowRoot.querySelector('#url');
 
     this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
       this.state = 'changed';
       this.updateStatus();
       this.prepVideo();
+    });
+
+    const buttons = this.shadowRoot.querySelectorAll('.example-button');
+    buttons.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        this.handleExampleButtonClick(event)
+      });
     });
 
     let clickLayer = this.shadowRoot.querySelector('#click-layer');
@@ -348,7 +365,6 @@ class PageController extends HTMLElement {
       this.handleEnded();
     });
 
-    this.prepVideo();
 
     // // this.playerWidth = Math.floor((this.width - 110) / 7);
     // const fragment = document.createDocumentFragment();
@@ -410,6 +426,13 @@ class PageController extends HTMLElement {
     // });
 
 
+  }
+
+  handleExampleButtonClick(event) {
+    this.log('handleExampleButtonClick');
+    this.input.value = `https://www.youtube.com/watch?v=${event.target.dataset.id}`;
+    this.updateStatus();
+    this.prepVideo();
   }
 
   updateStatus() {
@@ -552,6 +575,7 @@ class PageController extends HTMLElement {
         el.setAttribute('width', this.playerWidth);
         el.setAttribute('height', this.playerHeight);
         el.setAttribute('video-id', this.videoId);
+        el.setAttribute('debug', this.debug);
         fragment.appendChild(el);
         this.players.push(el);
       }
