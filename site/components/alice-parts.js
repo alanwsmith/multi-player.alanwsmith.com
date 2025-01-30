@@ -150,6 +150,7 @@ class AlicePlayer extends HTMLElement {
     this.shadowRoot.append(aliceTemplate.content.cloneNode(true));
     this.wrapper = this.shadowRoot.querySelector('#wrapper');
     this.bufferCount = 0;
+    this.hiderTimeout = null;
   }
 
   connectedCallback() {
@@ -229,9 +230,9 @@ class AlicePlayer extends HTMLElement {
         width: this.width,
         height: this.height,
         //videoId: 'jt7AF2RCMhg',
-        videoId: '8bOtuoNFzB0',
+        //videoId: '8bOtuoNFzB0',
         //https://www.youtube.com/watch?v=QUF1uLgzL-s
-        // videoId: 'm8vOrXIys6o',
+        videoId: 'm8vOrXIys6o',
         //endSeconds: 162,
         playerVars: {
           controls: 0,
@@ -277,13 +278,15 @@ class AlicePlayer extends HTMLElement {
   startVideo() {
     this.player.playVideo();
     // unhide after the youtube ui
-    setTimeout(() => {
+    this.hiderTimeout = setTimeout(() => {
       this.wrapper.classList.remove('hidden');
     }, 3500);
     // this.fadeTimeout = setTimeout(() => { this.fadeVolume() }, (158 * 1000));
   }
 
   stopVideo() {
+    clearTimeout(this.hiderTimeout);
+    this.hiderTimeout = null;
     this.wrapper.classList.add('hidden');
     this.player.stopVideo();
   }
