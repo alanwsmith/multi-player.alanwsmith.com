@@ -200,7 +200,7 @@ class AlicePlayer extends HTMLElement {
   handlePlayerStateChange(event) {
     const playerState = event.target.getPlayerState();
     if (playerState == -1) {
-      if (this.bufferCount > 0) {
+      if (this.bufferCount === 1) {
         const event = new CustomEvent('playerReady', {
           bubbles: true
         });
@@ -373,6 +373,7 @@ class PageController extends HTMLElement {
       this.playersReady += 1;
       this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
     });
+
     this.shadowRoot.addEventListener('playerReady', (event) => {
       this.playersReady += 1;
       if (this.shadowRoot.querySelector('#status')) {
@@ -382,8 +383,15 @@ class PageController extends HTMLElement {
         this.doReadyToPlay();
       }
     });
+
     let clickLayer = this.shadowRoot.querySelector('#click-layer');
     clickLayer.addEventListener('click', this.handleCanvasClick.bind(this, event));
+  }
+
+  updateStatus() {
+    if (this.state === 'loading') {
+
+    }
   }
 
   doReadyToPlay() {
@@ -393,11 +401,7 @@ class PageController extends HTMLElement {
     this.shadowRoot.querySelector('#status').innerHTML = '<button id="play-button" aria-label="Play">Play</button>';
     this.shadowRoot.querySelector('#play-button').addEventListener(
       'click', 
-      this.handlePlayButtonClick.bind(this, event), 
-      {
-        "once": true,
-        "capture": true,
-      }
+      this.handlePlayButtonClick.bind(this, event)
     );
   }
 
