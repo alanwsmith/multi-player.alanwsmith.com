@@ -52,6 +52,7 @@ aliceSheet.replaceSync(`
 }
 */
 `);
+
 const aliceTemplate = document.createElement('template');
 aliceTemplate.innerHTML = `<div id="wrapper" class="hidden"><div id="player"></div></div>`;
 
@@ -65,13 +66,14 @@ controllerSheet.replaceSync(`
   opacity: 0;
 }
 #canvas {
+  position: relative;
   color: #aaa;
   margin-top: 2rem;
   position: relative;
   width: min(calc(100vw - 40px), 1300px);
-  min-height: 86vh;
+  min-height: 94vh;
   margin-inline: auto;
-  background: black;
+  outline: 1px solid goldenrod;
 }
 #click-layer{
   postion: absolute:
@@ -79,11 +81,12 @@ controllerSheet.replaceSync(`
   height: 100%;
   top: 0;
   left: 0;
-  z-index: 2;
+  z-index: 4;
 }
 .flow > :where(:not(:first-child)) {
   margin-top: var(--flow-space, 1em);
 }
+/*
 #loader {
   position: absolute;
   top: 0;
@@ -91,63 +94,77 @@ controllerSheet.replaceSync(`
   width: 100%;
   height: 100%;
   z-index: 4;
-  /*
   background: maroon;
   opacity: 0.4;
-  */
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.message {
-  max-width: 40ch;
+*/
+
+#message {
+  position: relative;
+  max-width: 48ch;
+  margin-inline: auto;
+  z-index: 5;
 }
 #players{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  z-index: 1;
+  z-index: 2;
+  pointer-events: none;
 }
 #playing {
   transition: opacity 2.7s ease-in;
 }
+#url {
+  width: 90%;
+}
 `);
+
 const controllerTemplate = document.createElement('template');
 controllerTemplate.innerHTML = `
 <div id="canvas">
   <div id="players"></div>
   <div id="click-layer"><div>
-  <div id="loader">
-    <div class="flow message">
-      <h1>Multi-Player</h1>
+  <div id="message" class="flow">
+    <h1>Multi-Player</h1>
+    <div>
+      This page uses a lot of bandwidth. It
+      won't work well without a good network connection.
+      Using it on a mobile network is not recommended.
+    </div>
+    <div>
+      The visuals can include flashing lights and motion which may
+      affect sensitive viewers.
+    </div>
+    <div>
+      <label for="url">YouTube URL</label>
       <div>
-        This page uses a lot of bandwidth.
-        Using it on a mobile connection is not recommended.</div>
-      <div>
-          The visuals can include flashing lights and motion which may
-          affect sensitive viewers.
+        <input type="text" id="url" value="" />
       </div>
-      <div>
-        <label for="url">YouTube URL</label>
-        <div>
-          <input type="text" id="url" value="" size="60" />
-        </div>
-        <div id="status">&nbsp;</div>
-      </div>
-      <div>
-        Choose an example or use your own 
-        YouTube link:
-      <ul class="flow">
-        <li><button class="example-button" data-id="REPPgPcw4hk">CDK - Somebody That I Used To Know</button></li>
-        <li><button class="example-button" data-id="jt7AF2RCMhg">Pogo - Alice</button></li>
-        <li><button class="example-button" data-id="8bOtuoNFzB0">Queen/Star Wars</button></li>
-        <li><button class="example-button" data-id="q3zqJs7JUCQ">Taylor Swift - Fortnight</button></li>
-        <li id="debug-button" class="xhidden"><button class="example-button" data-id="m8vOrXIys6o">10 Second Test</button></li>
-      </ul>
-      </div>
+      <div id="status">&nbsp;</div>
+    </div>
+    <div>
+      Choose an example or use your own YouTube link:
+    <ul class="flow">
+      <li><button class="example-button" data-id="REPPgPcw4hk" aria-label="Select">CDK - Somebody That I Used To Know</button></li>
+      <li><button class="example-button" data-id="jt7AF2RCMhg" aria-label="Select">Pogo - Alice</button></li>
+      <li><button class="example-button" data-id="8bOtuoNFzB0" aria-label="Select">Queen/Star Wars</button></li>
+      <li><button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift - Fortnight</button></li>
+      <li id="debug-button" class="xhidden"><button class="example-button" data-id="m8vOrXIys6o" aria-label="Select">10 Second Test</button></li>
+    </ul>
     </div>
   </div>
+  <!--
+  <div id="loader"></div>
+  -->
 </div>
 `
 
@@ -461,7 +478,7 @@ class PageController extends HTMLElement {
   getDimensions() {
     this.log("getDimensions");
     this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 50), 1300);
-    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .86);
+    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .94);
     // this.playerWidth = 100;
     // this.playerHeight = 48;
     for (let columns = 1; columns < 100; columns += 2) {
@@ -503,7 +520,7 @@ class PageController extends HTMLElement {
     this.log('handleEnded');
     if (this.endedState === false) {
       this.playersReady = 0;
-      this.shadowRoot.querySelector('#loader').classList.remove('hidden');
+      this.shadowRoot.querySelector('#message').classList.remove('hidden');
       this.endedState = true;
       this.state = "stopped";
     }
@@ -513,7 +530,7 @@ class PageController extends HTMLElement {
     this.log("handlePlayButtonClick");
     if (this.state === "stopped") {
       this.log("state is stopped");
-      this.shadowRoot.querySelector('#loader').classList.add('hidden');
+      this.shadowRoot.querySelector('#message').classList.add('hidden');
       this.log(this.players.length);
       // setTimeout(() => {
       // this.shadowRoot.querySelector('#playing').classList.add('hidden');
@@ -539,7 +556,7 @@ class PageController extends HTMLElement {
     if (this.state === "playing") {
       this.log('state: playing');
       this.playersReady = 0;
-      this.shadowRoot.querySelector('#loader').classList.remove('hidden');
+      this.shadowRoot.querySelector('#message').classList.remove('hidden');
       this.players[this.audioPlayerIndex].mute();
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
