@@ -168,7 +168,6 @@ class AlicePlayer extends HTMLElement {
     this.videoId = this.getAttribute('video-id');
     // console.log(this.borderStyle);
     this.wrapper.classList.add(this.borderStyle);
-
     if (this.debug === true) {
       // console.log("Debugging on");
       this.style.width = `${this.width}px`;
@@ -315,7 +314,7 @@ class PageController extends HTMLElement {
     this.shadowRoot.append(controllerTemplate.content.cloneNode(true));
     this.players = [];
     this.playersReady = 0;
-    this.state = "stopped";
+    this.state = "loading";
     this.endedState = true;
     this.debug = true;
     this.debug = false;
@@ -336,6 +335,12 @@ class PageController extends HTMLElement {
 
     let clickLayer = this.shadowRoot.querySelector('#click-layer');
     clickLayer.addEventListener('click', this.handleCanvasClick.bind(this, event));
+
+    this.shadowRoot.addEventListener('playerReady', (event) => {
+      this.playersReady += 1;
+      this.updateStatus();
+    });
+
     this.prepVideo();
 
     // // this.playerWidth = Math.floor((this.width - 110) / 7);
@@ -400,10 +405,10 @@ class PageController extends HTMLElement {
 
   }
 
-  // updateStatus() {
-  //   if (this.state === 'loading') {
-  //   }
-  // }
+  updateStatus() {
+    if (this.state === 'loading') {
+    }
+  }
 
   doReadyToPlay() {
     this.log("doReadyToPlay");
@@ -516,12 +521,13 @@ class PageController extends HTMLElement {
   prepVideo() {
     this.log('prepVideo');
     this.getDimensions();
-    this.playersReady = 0;
     const urlInput = this.shadowRoot.querySelector('#url').value;
     const urlParams = new URL(urlInput).searchParams;
     this.videoId = urlParams.get('v');
 
-    if (this.videoId) {
+    if (this.videoId && this.videoId.length === 11) {
+      this.playersReady = 0;
+      this.state = 'loading';
       const fragment = document.createDocumentFragment();
       for (let count = 0; count < this.playerCount; count += 1) {
 
