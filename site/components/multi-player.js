@@ -10,7 +10,6 @@ aliceSheet.replaceSync(`
   display: inline-block;
   margin: 0;
   pointer-events: none;
-  background: red;
 }
 .hidden {
   opacity: 0;
@@ -69,7 +68,7 @@ controllerSheet.replaceSync(`
   color: #aaa;
   margin-top: 1rem;
   position: relative;
-  width: min(calc(100vw - 40px), 1300px);
+  width: min(calc(100vw - 40px), 1400px);
   min-height: 90vh;
   margin-inline: auto;
 }
@@ -181,6 +180,7 @@ controllerTemplate.innerHTML = `
     </p>
     <div class="flex">
       <button class="example-button" data-id="REPPgPcw4hk" aria-label="Select">CDK</button>
+      <button class="example-button" data-id="12zJw9varYE" aria-label="Select">OK Go</button>
       <button class="example-button" data-id="jt7AF2RCMhg" aria-label="Select">Pogo</button>
       <button class="example-button" data-id="8bOtuoNFzB0" aria-label="Select">Queen</button>
       <button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift</button>
@@ -517,11 +517,12 @@ class PageController extends HTMLElement {
 
   getDimensions() {
     this.log("getDimensions");
-    this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 50), 1300);
+    this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 50), 1390);
     this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .90);
     // this.playerWidth = 100;
     // this.playerHeight = 48;
     for (let columns = 1; columns < 100; columns += 2) {
+      // const checkWidth = Math.round(this.maxCanvasWidth / columns);
       const checkWidth = Math.round(this.maxCanvasWidth / columns);
       if (checkWidth < 190) {
         this.playerWidth = checkWidth;
