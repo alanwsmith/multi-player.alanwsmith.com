@@ -27,7 +27,7 @@
 
   --background-color: black;
   --background-color-2: black;
-  --primary-color: white;
+  --primary-color: #bbb;
   --secondary-color: blue;
   --accent-color-1: green;
   --accent-color-2: purple;
@@ -123,7 +123,7 @@ a:hover, a:focus {
 
 body {
   background: var(--background-color);
-  color: var(--text);
+  color: var(--primary-color);
   font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
   font-weight: normal;
   font-size: var(--medium-font-size);
@@ -137,12 +137,15 @@ h1, h2, h3 {
 }
 
 h1 {
-  font-size: var(--fs-step-4);
+  font-size: var(--xlarge-font-size);
   margin-top: 1em;
+  font-weight: 900;
 }
 
 h2 {
-  font-size: var(--fs-step-3);
+  border-bottom: 1px solid var(--primary-color);
+  font-size: var(--large-font-size);
+  font-weight: 900;
   --flow-space: 1.3em;
 }
 
@@ -170,7 +173,7 @@ ul > :where(:not(:first-child)) {
 }
 
 header, footer, main {
-  max-width: var(--medium-width);
+  max-width: min(var(--medium-width), calc(100vw - 2rem));
   margin-inline: auto;
 }
 
@@ -188,25 +191,33 @@ footer {
     </header>
 
     <main class="flow"> 
-      <h1>About This Project</h1>
+      <h1>About Multi-Player</h1>
+      <h2>Overview</h2>
       <p>
-        This project is a recreation of a page I saw years
-        ago. It used the <a href="https://www.youtube.com/watch?v=jt7AF2RCMhg">same video
-          from the band Pogo </a>
-        with the same filmstrip 
-        style movement. I can't find the original.
+        This project is a recreation of a page I 
+        saw years ago. It used the 
+        <a href="https://www.youtube.com/watch?v=jt7AF2RCMhg">Alice video from Pogo</a>.
+        I can't find the original.
         So, I decided to recreate it. 
       </p>
-      <h2>Web Components</h2>
+      <h2>Tech Details</h2>
+      <h3>YouTube API</h3>
       <p>
-        The page is built from two vanilla javascript web 
-        components. Using components is a bit overkill. 
-        I'm still new to them though. I'm a big fan
-        getting reps under your belt on easier things 
-        so you've got better footing when they get harder.
-        This project turned out to be perfect for that.
+        The videos come from YouTube via their 
+        <a href="https://developers.google.com/youtube/iframe_api_reference">iFrame API</a>.
+        It lets you embed videos on the page 
+        and control them with JavaScript. 
       </p>
-      <h2>Syncing The Videos</h2>
+
+      <h3>Web Components</h3>
+      <p>
+        The page is built from two vanilla web 
+        components. Using components is a bit overkill. 
+        I'm still new to them though. This was
+        a nice way to get some reps under the
+        belt on a small project. 
+      </p>
+      <h3>Syncing The Videos</h3>
       <p>
         The page automatically determines how may players 
         to use based on the browser's
@@ -214,23 +225,26 @@ footer {
         a little delay between them. It works well most
         of the time on good network connections. Sometimes
         they don't start when they should and things
-        look a little wonky. If you're on a solid 
+        look a wonky. If you're on a solid 
         network connection refreshing the browser might
         make things smoother. 
       </p>
-      <h2>Two Patterns</h2>
+      <p>
+        I've got some ideas about how to ping the video players
+        and re-sync them while they are playing. 
+      </p>
+      <h3>Two Patterns</h3>
       <p>If you look at <a href="https://github.com/alanwsmith/multi-player.alanwsmith.com">
-        the source code</a> you'll see a commented out
-        section for another pattern. It's more of 
+        the source code</a> you'll see commented out
+        sections for another display pattern. It's more of 
         star where things expand out from a central frame. 
-        I liked the idea, but it didn't work as well
-        in practice. 
+        I liked the idea, but it look as good when
+        I implemented it. 
       </p>
       <p>
         I went back to the filmstrip style. I
         might play around with other patterns at 
-        some point. I like the way it looks for
-        now. 
+        some point. I've got some ideas for that.
       </p>
 
     </main>
