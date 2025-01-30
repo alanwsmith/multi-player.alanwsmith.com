@@ -137,21 +137,22 @@ h1, h2, h3 {
 }
 
 h1 {
-  font-size: var(--xlarge-font-size);
+  font-size: var(--xxlarge-font-size);
   margin-top: 1em;
   font-weight: 900;
 }
 
 h2 {
   border-bottom: 1px solid var(--primary-color);
-  font-size: var(--large-font-size);
+  font-size: var(--xlarge-font-size);
   font-weight: 900;
   --flow-space: 1.3em;
 }
 
 h3 {
-  font-size: var(--fs-step-2);
-  --flow-space: 1.0em;
+  font-size: var(--large-font-size);
+  --flow-space: 1.2em;
+  font-weight: 900;
 }
 
 
@@ -178,7 +179,7 @@ header, footer, main {
 }
 
 footer {
-  margin-top: var(--xxlarge-margin);
+  margin-block: var(--large-margin);
   font-size: var(--small-font-size);
   text-align: center;
 }
@@ -198,21 +199,57 @@ footer {
         saw years ago. It used the 
         <a href="https://www.youtube.com/watch?v=jt7AF2RCMhg">Alice video from Pogo</a>.
         I can't find the original.
-        So, I decided to recreate it. 
+        So, I decided to make a new version. 
       </p>
+      <h2>The Audio</h2>
+      <p>
+        I initially had the audio coming from the
+        first frame in the upper left. 
+        It works for some videos. Mostly, I found it
+        nicer to move the audio to sync with
+        a more central frame. It's currently set 
+        to come from the middle column on one of
+        the first three rows
+        (depending on the total number of rows).
+      </p>
+      <p>
+        That's where I found my eyes drifting most
+        of the time.
+      </p>
+      <p>
+        I played around with highlighting the
+        audio source frame in different ways. 
+        All of them felt more distracting 
+        from the overall experience than they 
+        were worth. 
+      </p>
+
       <h2>Tech Details</h2>
       <h3>YouTube API</h3>
       <p>
         The videos come from YouTube via their 
         <a href="https://developers.google.com/youtube/iframe_api_reference">iFrame API</a>.
-        It lets you embed videos on the page 
+        It lets you embed videos on a page 
         and control them with JavaScript. 
+      </p>
+      <p>
+        While the iFrame API is pretty solid, it's missing
+        a couple 'nice-to-haves'. Specifically, the title
+        and duration of the video. Displaying
+        the title while the video is loading would
+        be a nice touch. With the duration, I could
+        add a nicer fade out at the end. 
+      </p>
+      <p>
+        Those details are available in other YouTube
+        APIs. Adding them was more complexity than
+        I wanted to get into at the moment. 
       </p>
 
       <h3>Web Components</h3>
       <p>
-        The page is built from two vanilla web 
-        components. Using components is a bit overkill. 
+        The page is built from vanilla web 
+        components. Using components is maybe overkill. 
         I'm still new to them though. This was
         a nice way to get some reps under the
         belt on a small project. 
@@ -222,7 +259,7 @@ footer {
         The page automatically determines how may players 
         to use based on the browser's
         window size. The videos start with
-        a little delay between them. It works well most
+        a little delay between each one. It works well most
         of the time on good network connections. Sometimes
         they don't start when they should and things
         look a wonky. If you're on a solid 
@@ -231,14 +268,25 @@ footer {
       </p>
       <p>
         I've got some ideas about how to ping the video players
-        and re-sync them while they are playing. 
+        and re-sync them while they are playing. I'm not
+        sure if it'll be possible with the timing
+        from the API though. 
       </p>
+      <p>
+        There may be an approach to this that uses a 
+        single video and somehow renders it multiple 
+        times. Something else to maybe investigate
+        in the future (if you know how to do that, 
+        <a href="https://socials.alanwsmith.com/">please
+          let me know</a>).
+      </p>
+
       <h3>Two Patterns</h3>
       <p>If you look at <a href="https://github.com/alanwsmith/multi-player.alanwsmith.com">
         the source code</a> you'll see commented out
         sections for another display pattern. It's more of 
         star where things expand out from a central frame. 
-        I liked the idea, but it look as good when
+        I liked the idea, but it didn't look as good when
         I implemented it. 
       </p>
       <p>
@@ -247,6 +295,18 @@ footer {
         some point. I've got some ideas for that.
       </p>
 
+      <h2>Future Enhancements</h2>
+      <p>
+        I've got a few ideas for features 
+        to add. But, I'm happy with where it is
+        now. I want to roll off to work on 
+        other projects. I'll probably come
+        back to this at some point. For now, 
+        <a href="/">I hope you enjoy it!</a>
+      </p>
+      <p>
+        -a
+      </p>
     </main>
 
     <footer>
