@@ -63,9 +63,6 @@ controllerSheet.replaceSync(`
   display: block;
   margin: 0;
 }
-.hidden {
-  opacity: 0;
-}
 #canvas {
   position: relative;
   color: #aaa;
@@ -88,6 +85,13 @@ controllerSheet.replaceSync(`
 }
 .flow > :where(:not(:first-child)) {
   margin-top: var(--flow-space, 1em);
+}
+h1 {
+  font-size: 1.3rem;
+  font-weight: 900;
+}
+.hidden {
+  opacity: 0;
 }
 /*
 #loader {
@@ -138,16 +142,16 @@ controllerTemplate.innerHTML = `
   <div id="click-layer"><div>
   <div id="message" class="flow">
     <h1>Multi-Player</h1>
-    <div>
+    <p>
       This page uses a lot of bandwidth. It
       won't work well without a good network connection 
       and a newer device. Using it on a mobile 
       network is not recommended.
-    </div>
-    <div>
+    </p>
+    <p>
       The visuals can include flashing lights and motion which may
       affect sensitive viewers.
-    </div>
+    </p>
     <div>
       <label for="url">YouTube URL</label>
       <div>
@@ -155,16 +159,17 @@ controllerTemplate.innerHTML = `
       </div>
       <div id="status">&nbsp;</div>
     </div>
-    <div>
+    <p>
       Choose an example or use your own YouTube link
+    </p>
+    <div class="flex">
+      <button class="example-button" data-id="REPPgPcw4hk" aria-label="Select">CDK</button>
+      <button class="example-button" data-id="jt7AF2RCMhg" aria-label="Select">Pogo</button>
+      <button class="example-button" data-id="8bOtuoNFzB0" aria-label="Select">Queen</button>
+      <button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift</button>
     </div>
-    <ul id="example-buttons" class="flow">
-      <li><button class="example-button" data-id="REPPgPcw4hk" aria-label="Select">CDK - Somebody That I Used To Know</button></li>
-      <li><button class="example-button" data-id="jt7AF2RCMhg" aria-label="Select">Pogo - Alice</button></li>
-      <li><button class="example-button" data-id="8bOtuoNFzB0" aria-label="Select">Queen/Star Wars</button></li>
-      <li><button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift - Fortnight</button></li>
-    </ul>
-    <div>Videos with ads won't work well.</div>
+    <p>Try refreshing the page if videos don't sync well.</p>
+    <p>Videos with ads won't work well.</p>
   </div>
   <!--
   <div id="loader"></div>
@@ -313,6 +318,11 @@ class AlicePlayer extends HTMLElement {
     })
   }
 
+  log(message) {
+    if (this.debug === true) {
+      console.log(message);
+    }
+  }
   startVideo() {
     this.player.playVideo();
     // unhide after the youtube ui
@@ -351,7 +361,7 @@ class PageController extends HTMLElement {
     this.state = "loading";
     this.endedState = true;
     this.debug = true;
-    // this.debug = false;
+    this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
     this.readyToPlay = false;
@@ -372,6 +382,7 @@ class PageController extends HTMLElement {
       const el = document.createElement('li');
       el.innerHTML = `<button class="example-button" data-id="m8vOrXIys6o" aria-label="Select">10 Second Test</button>`;
       this.shadowRoot.querySelector('#example-buttons').appendChild(el);
+      this.shadowRoot.querySelector('#canvas').classList.add('debug');
     }
 
     const buttons = this.shadowRoot.querySelectorAll('.example-button');
@@ -457,7 +468,7 @@ class PageController extends HTMLElement {
   }
 
   handleExampleButtonClick(event) {
-    this.state = 'loading';
+    this.state = 'preparing';
     this.log('handleExampleButtonClick');
     this.input.value = `https://www.youtube.com/watch?v=${event.target.dataset.id}`;
     this.updateStatus();
