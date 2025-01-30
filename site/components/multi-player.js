@@ -66,7 +66,7 @@ controllerSheet.replaceSync(`
 #canvas {
   position: relative;
   color: #aaa;
-  margin-top: 2rem;
+  margin-top: 1rem;
   position: relative;
   width: min(calc(100vw - 40px), 1300px);
   min-height: 90vh;
@@ -89,6 +89,7 @@ controllerSheet.replaceSync(`
 h1 {
   font-size: 1.3rem;
   font-weight: 900;
+  margin-top: 0;
 }
 .hidden {
   opacity: 0;
@@ -126,23 +127,25 @@ h1 {
   z-index: 2;
   pointer-events: none;
 }
+/*
 #playing {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 98%;
   height: 60%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  z-index: 2;
+  z-index: 3;
   pointer-events: none;
   transition: opacity 0s;
 }
 #playing.hidden {
   transition: opacity 2.7s ease-in;
 }
+*/
 #url {
   width: 90%;
 }
