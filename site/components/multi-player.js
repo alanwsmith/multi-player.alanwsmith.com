@@ -108,7 +108,6 @@ h1 {
   align-items: center;
 }
 */
-
 #message {
   position: relative;
   max-width: 48ch;
@@ -128,8 +127,22 @@ h1 {
   pointer-events: none;
 }
 #playing {
-  transition: opacity 2.7s ease-in;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity 0s;
 }
+#playing.hidden {
+  transition: opacity 2.7s ease-in;
+};
 #url {
   width: 90%;
 }
@@ -140,6 +153,7 @@ controllerTemplate.innerHTML = `
 <div id="canvas">
   <div id="players"></div>
   <div id="click-layer"><div>
+  <div id="playing" class="hidden"><div>Playing</div></div>
   <div id="message" class="flow">
     <h1>Multi-Player</h1>
     <p>
@@ -555,6 +569,8 @@ class PageController extends HTMLElement {
       this.log("state is stopped");
       this.shadowRoot.querySelector('#message').classList.add('hidden');
       this.log(this.players.length);
+      const playingEl = this.shadowRoot.querySelector('#playing');
+      playingEl.classList.remove('hidden');
       // setTimeout(() => {
       // this.shadowRoot.querySelector('#playing').classList.add('hidden');
       // }, 100);
@@ -569,6 +585,7 @@ class PageController extends HTMLElement {
       setTimeout(() => { 
         this.state = "playing";
         this.endedState = false;
+        playingEl.classList.add('hidden');
       }, 200);
       //this.shadowRoot.querySelector('#canvas').addEventListener('click', this.handlePlayButtonClick);
     }
