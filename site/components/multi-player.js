@@ -554,7 +554,7 @@ class PageController extends HTMLElement {
     for (let columns = 3; columns < 10; columns += 2) {
       // const checkWidth = Math.round(this.maxCanvasWidth / columns);
       const checkWidth = Math.round(this.maxCanvasWidth / columns);
-      if (checkWidth < 220) {
+      if (checkWidth < 210) {
         this.playerWidth = checkWidth;
         this.playerHeight = Math.round(checkWidth * 9 / 16);
         this.playerColumns = columns;
