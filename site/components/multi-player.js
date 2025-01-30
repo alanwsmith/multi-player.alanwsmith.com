@@ -75,6 +75,9 @@ controllerSheet.replaceSync(`
   min-height: 90vh;
   margin-inline: auto;
 }
+#canvas.debug {
+  background: maroon;
+}
 #click-layer{
   postion: absolute:
   width: 100%;
@@ -137,8 +140,9 @@ controllerTemplate.innerHTML = `
     <h1>Multi-Player</h1>
     <div>
       This page uses a lot of bandwidth. It
-      won't work well without a good network connection.
-      Using it on a mobile network is not recommended.
+      won't work well without a good network connection 
+      and a newer device. Using it on a mobile 
+      network is not recommended.
     </div>
     <div>
       The visuals can include flashing lights and motion which may
@@ -152,14 +156,13 @@ controllerTemplate.innerHTML = `
       <div id="status">&nbsp;</div>
     </div>
     <div>
-      Choose an example or use your own YouTube link:
+      Choose an example or use your own YouTube link
     </div>
-    <ul class="flow">
+    <ul id="example-buttons" class="flow">
       <li><button class="example-button" data-id="REPPgPcw4hk" aria-label="Select">CDK - Somebody That I Used To Know</button></li>
       <li><button class="example-button" data-id="jt7AF2RCMhg" aria-label="Select">Pogo - Alice</button></li>
       <li><button class="example-button" data-id="8bOtuoNFzB0" aria-label="Select">Queen/Star Wars</button></li>
       <li><button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift - Fortnight</button></li>
-      <li id="debug-button" class="xhidden"><button class="example-button" data-id="m8vOrXIys6o" aria-label="Select">10 Second Test</button></li>
     </ul>
     <div>Videos with ads won't work well.</div>
   </div>
@@ -211,22 +214,22 @@ class AlicePlayer extends HTMLElement {
     }
   }
 
-  fadeVolume() {
-    //console.log("fade volume");
-    const currentVolume = this.player.getVolume();
-    const isMuted = this.player.isMuted();
-    if (isMuted === false) {
-      // console.log(currentVolume);
-      if (currentVolume > 0) {
-        this.player.setVolume(Math.floor(currentVolume / 1.5));
-        this.fadeTimeout = setTimeout(() => {this.fadeVolume()}, 400);
-      }
-    }
-  }
+  //fadeVolume() {
+  //  //console.log("fade volume");
+  //  const currentVolume = this.player.getVolume();
+  //  const isMuted = this.player.isMuted();
+  //  if (isMuted === false) {
+  //    // console.log(currentVolume);
+  //    if (currentVolume > 0) {
+  //      this.player.setVolume(Math.floor(currentVolume / 1.5));
+  //      this.fadeTimeout = setTimeout(() => {this.fadeVolume()}, 400);
+  //    }
+  //  }
+  //}
 
-  fullVolume() {
-    this.player.setVolume(100);
-  }
+  // fullVolume() {
+  //   this.player.setVolume(100);
+  // }
 
   handlePlayerStateChange(event) {
     const playerState = event.target.getPlayerState();
@@ -348,12 +351,13 @@ class PageController extends HTMLElement {
     this.state = "loading";
     this.endedState = true;
     this.debug = true;
-    this.debug = false;
+    // this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
     this.readyToPlay = false;
     this.showLogs = true;
   }
+
 
   connectedCallback() {
     this.input = this.shadowRoot.querySelector('#url');
@@ -363,6 +367,12 @@ class PageController extends HTMLElement {
       this.updateStatus();
       this.prepVideo();
     });
+
+    if (this.debug === true) {
+      const el = document.createElement('li');
+      el.innerHTML = `<button class="example-button" data-id="m8vOrXIys6o" aria-label="Select">10 Second Test</button>`;
+      this.shadowRoot.querySelector('#example-buttons').appendChild(el);
+    }
 
     const buttons = this.shadowRoot.querySelectorAll('.example-button');
     buttons.forEach((button) => {
@@ -447,6 +457,7 @@ class PageController extends HTMLElement {
   }
 
   handleExampleButtonClick(event) {
+    this.state = 'loading';
     this.log('handleExampleButtonClick');
     this.input.value = `https://www.youtube.com/watch?v=${event.target.dataset.id}`;
     this.updateStatus();
