@@ -129,7 +129,7 @@ controllerTemplate.innerHTML = `
       <div>
         <label for="url">YouTube URL</label>
         <div>
-          <input type="text" id="url" value="https://www.youtube.com/watch?v=8bOtuoNFzB0" size="60" />
+          <input type="text" id="url" value="https://www.youtube.com/watch?v=m8vOrXIys6o" size="60" />
         </div>
       </div>
       <div id="status">Preparing...</div>
@@ -165,6 +165,7 @@ class AlicePlayer extends HTMLElement {
     this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
     this.debug = this.hasAttribute('debug');
     this.borderStyle = this.getAttribute('border-style');
+    this.videoId = this.getAttribute('video-id');
     // console.log(this.borderStyle);
     this.wrapper.classList.add(this.borderStyle);
 
@@ -230,9 +231,13 @@ class AlicePlayer extends HTMLElement {
         width: this.width,
         height: this.height,
         //videoId: 'jt7AF2RCMhg',
+        //
         //videoId: '8bOtuoNFzB0',
+        //https://www.youtube.com/watch?v=UR62NYvLqCo
         //https://www.youtube.com/watch?v=QUF1uLgzL-s
-        videoId: 'm8vOrXIys6o',
+        //
+        // videoId: 'm8vOrXIys6o',
+        videoId: this.videoId,
         //endSeconds: 162,
         playerVars: {
           controls: 0,
@@ -323,76 +328,82 @@ class PageController extends HTMLElement {
   connectedCallback() {
     //this.playerCount = 4;
     // this.playerCount = 42;
-    this.getDimensions();
-    // this.playerWidth = Math.floor((this.width - 110) / 7);
-    const fragment = document.createDocumentFragment();
-    for (let count = 0; count < this.playerCount; count += 1) {
-      const el = document.createElement('alice-player');
-      el.setAttribute('width', this.playerWidth);
-      el.setAttribute('height', this.playerHeight);
-      if (count === this.audioPlayerIndex) {
-        el.setAttribute('audio-player', 'yes');
-      } else {
-        el.setAttribute('audio-player', 'no');
-      }
-      let currentColumn = (count % this.playerColumns); 
-      let currentRow = Math.floor(count / this.playerColumns);
-      if (currentColumn === this.centerColumn && currentRow === 0) {
-        el.setAttribute('border-style', 'top-border');
-      } else if (currentColumn === this.centerColumn && currentRow === this.playerRows - 1) {
-        el.setAttribute('border-style', 'bottom-border');
-      } else if (currentRow === this.centerRow && currentColumn === 0) {
-        el.setAttribute('border-style', 'left-border');
-      } else if (currentRow === this.centerRow && currentColumn === this.playerColumns - 1) {
-        el.setAttribute('border-style', 'right-border');
-      } else {
-        el.setAttribute('border-style', 'no-border');
-      }
-      const absoluteColumnOffset = Math.abs(this.centerColumn - currentColumn);
-      const absoluteRowOffset = Math.abs(this.centerRow - currentRow);
-      const absoluteOffset = absoluteColumnOffset + absoluteRowOffset;
-      // console.log(`${absoluteColumnOffset} - ${absoluteRowOffset}`);
-      // console.log(`${this.playerColumns} ${currentColumn} - ${this.playerRows} ${currentRow}`);
-      // console.log(this.playerColumns);
-      this.playerOffsets.push(absoluteOffset * this.offsetPadding);
-      if (this.debug === true) {
-        el.setAttribute('debugOffset', absoluteOffset);
-        el.setAttribute('debug', 'on');
-      }
-      this.players.push(el);
-      fragment.appendChild(el);
-    }
-    this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
-      console.log('change');
-    });
-    this.shadowRoot.querySelector('#players').appendChild(fragment);
-    this.shadowRoot.addEventListener('ended', () => {
-      this.handleEnded();
-    });
-    this.shadowRoot.addEventListener('apiLoaded', (event) => {
-      this.playersReady += 1;
-      this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
-    });
+    // this.getDimensions();
 
-    this.shadowRoot.addEventListener('playerReady', (event) => {
-      this.playersReady += 1;
-      if (this.shadowRoot.querySelector('#status')) {
-        this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
-      }
-      if (this.playersReady === this.playerCount * 2 ) {
-        this.doReadyToPlay();
-      }
+    this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
+      this.prepVideo();
     });
 
     let clickLayer = this.shadowRoot.querySelector('#click-layer');
     clickLayer.addEventListener('click', this.handleCanvasClick.bind(this, event));
+    this.prepVideo();
+
+    // // this.playerWidth = Math.floor((this.width - 110) / 7);
+    // const fragment = document.createDocumentFragment();
+    // for (let count = 0; count < this.playerCount; count += 1) {
+    //   const el = document.createElement('alice-player');
+    //   el.setAttribute('width', this.playerWidth);
+    //   el.setAttribute('height', this.playerHeight);
+    //   if (count === this.audioPlayerIndex) {
+    //     el.setAttribute('audio-player', 'yes');
+    //   } else {
+    //     el.setAttribute('audio-player', 'no');
+    //   }
+    //   let currentColumn = (count % this.playerColumns); 
+    //   let currentRow = Math.floor(count / this.playerColumns);
+    //   if (currentColumn === this.centerColumn && currentRow === 0) {
+    //     el.setAttribute('border-style', 'top-border');
+    //   } else if (currentColumn === this.centerColumn && currentRow === this.playerRows - 1) {
+    //     el.setAttribute('border-style', 'bottom-border');
+    //   } else if (currentRow === this.centerRow && currentColumn === 0) {
+    //     el.setAttribute('border-style', 'left-border');
+    //   } else if (currentRow === this.centerRow && currentColumn === this.playerColumns - 1) {
+    //     el.setAttribute('border-style', 'right-border');
+    //   } else {
+    //     el.setAttribute('border-style', 'no-border');
+    //   }
+    //   const absoluteColumnOffset = Math.abs(this.centerColumn - currentColumn);
+    //   const absoluteRowOffset = Math.abs(this.centerRow - currentRow);
+    //   const absoluteOffset = absoluteColumnOffset + absoluteRowOffset;
+    //   // console.log(`${absoluteColumnOffset} - ${absoluteRowOffset}`);
+    //   // console.log(`${this.playerColumns} ${currentColumn} - ${this.playerRows} ${currentRow}`);
+    //   // console.log(this.playerColumns);
+    //   this.playerOffsets.push(absoluteOffset * this.offsetPadding);
+    //   if (this.debug === true) {
+    //     el.setAttribute('debugOffset', absoluteOffset);
+    //     el.setAttribute('debug', 'on');
+    //   }
+    //   this.players.push(el);
+    //   fragment.appendChild(el);
+    // }
+    // this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
+    //   this.prepVideo();
+    // });
+    // this.shadowRoot.querySelector('#players').appendChild(fragment);
+    // this.shadowRoot.addEventListener('ended', () => {
+    //   this.handleEnded();
+    // });
+    // this.shadowRoot.addEventListener('apiLoaded', (event) => {
+    //   this.playersReady += 1;
+    //   this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
+    // });
+    // this.shadowRoot.addEventListener('playerReady', (event) => {
+    //   this.playersReady += 1;
+    //   if (this.shadowRoot.querySelector('#status')) {
+    //     this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
+    //   }
+    //   if (this.playersReady === this.playerCount * 2 ) {
+    //     this.doReadyToPlay();
+    //   }
+    // });
+
+
   }
 
-  updateStatus() {
-    if (this.state === 'loading') {
-
-    }
-  }
+  // updateStatus() {
+  //   if (this.state === 'loading') {
+  //   }
+  // }
 
   doReadyToPlay() {
     this.log("doReadyToPlay");
@@ -502,6 +513,83 @@ class PageController extends HTMLElement {
     }
   }
 
+  prepVideo() {
+    this.log('prepVideo');
+    this.getDimensions();
+    this.playersReady = 0;
+    const urlInput = this.shadowRoot.querySelector('#url').value;
+    const urlParams = new URL(urlInput).searchParams;
+    this.videoId = urlParams.get('v');
+
+    if (this.videoId) {
+      const fragment = document.createDocumentFragment();
+      for (let count = 0; count < this.playerCount; count += 1) {
+
+        this.log(count);
+        // const el = document.createElement('alice-player');
+        // el.setAttribute('width', this.playerWidth);
+        // el.setAttribute('height', this.playerHeight);
+        // el.setAttribute('video-id', this.videoId);
+        // fragment.appendChild(el);
+
+      }
+      this.shadowRoot.querySelector('#players').replaceChildren(fragment);
+    }
+
+
+    //   if (count === this.audioPlayerIndex) {
+    //     el.setAttribute('audio-player', 'yes');
+    //   } else {
+    //     el.setAttribute('audio-player', 'no');
+    //   }
+    //   let currentColumn = (count % this.playerColumns); 
+    //   let currentRow = Math.floor(count / this.playerColumns);
+    //   if (currentColumn === this.centerColumn && currentRow === 0) {
+    //     el.setAttribute('border-style', 'top-border');
+    //   } else if (currentColumn === this.centerColumn && currentRow === this.playerRows - 1) {
+    //     el.setAttribute('border-style', 'bottom-border');
+    //   } else if (currentRow === this.centerRow && currentColumn === 0) {
+    //     el.setAttribute('border-style', 'left-border');
+    //   } else if (currentRow === this.centerRow && currentColumn === this.playerColumns - 1) {
+    //     el.setAttribute('border-style', 'right-border');
+    //   } else {
+    //     el.setAttribute('border-style', 'no-border');
+    //   }
+    //   const absoluteColumnOffset = Math.abs(this.centerColumn - currentColumn);
+    //   const absoluteRowOffset = Math.abs(this.centerRow - currentRow);
+    //   const absoluteOffset = absoluteColumnOffset + absoluteRowOffset;
+    //   // console.log(`${absoluteColumnOffset} - ${absoluteRowOffset}`);
+    //   // console.log(`${this.playerColumns} ${currentColumn} - ${this.playerRows} ${currentRow}`);
+    //   // console.log(this.playerColumns);
+    //   this.playerOffsets.push(absoluteOffset * this.offsetPadding);
+    //   if (this.debug === true) {
+    //     el.setAttribute('debugOffset', absoluteOffset);
+    //     el.setAttribute('debug', 'on');
+    //   }
+    //   this.players.push(el);
+    //   fragment.appendChild(el);
+    // }
+    // this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
+    //   this.prepVideo();
+    // });
+    // this.shadowRoot.querySelector('#players').appendChild(fragment);
+    // this.shadowRoot.addEventListener('ended', () => {
+    //   this.handleEnded();
+    // });
+    // this.shadowRoot.addEventListener('apiLoaded', (event) => {
+    //   this.playersReady += 1;
+    //   this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
+    // });
+    // this.shadowRoot.addEventListener('playerReady', (event) => {
+    //   this.playersReady += 1;
+    //   if (this.shadowRoot.querySelector('#status')) {
+    //     this.shadowRoot.querySelector('#status').innerHTML = `Loaded ${this.playersReady} of ${this.playerCount * 2}`;
+    //   }
+    //   if (this.playersReady === this.playerCount * 2 ) {
+    //     this.doReadyToPlay();
+    //   }
+    // });
+  }
 
   // async handlePlayButtonClickStarPatternNotAsGood() {
   //   if (this.state === "stopped") {
