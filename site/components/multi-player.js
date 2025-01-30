@@ -10,6 +10,7 @@ aliceSheet.replaceSync(`
   display: inline-block;
   margin: 0;
   pointer-events: none;
+  background: red;
 }
 .hidden {
   opacity: 0;
@@ -119,6 +120,7 @@ h1 {
   position: absolute;
   top: 0;
   left: 0;
+  gap: 0;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -127,7 +129,6 @@ h1 {
   z-index: 2;
   pointer-events: none;
 }
-/*
 #playing {
   position: absolute;
   top: 0;
@@ -145,7 +146,6 @@ h1 {
 #playing.hidden {
   transition: opacity 2.7s ease-in;
 }
-*/
 #url {
   width: 90%;
 }
@@ -522,10 +522,10 @@ class PageController extends HTMLElement {
     // this.playerWidth = 100;
     // this.playerHeight = 48;
     for (let columns = 1; columns < 100; columns += 2) {
-      const checkWidth = Math.floor(this.maxCanvasWidth / columns);
+      const checkWidth = Math.round(this.maxCanvasWidth / columns);
       if (checkWidth < 190) {
         this.playerWidth = checkWidth;
-        this.playerHeight = checkWidth * 9 / 16;
+        this.playerHeight = Math.round(checkWidth * 9 / 16);
         this.playerColumns = columns;
         this.playerRows = Math.min(Math.floor(this.maxCanvasHeight / this.playerHeight), 7);
         this.playerCount = this.playerColumns * this.playerRows;
