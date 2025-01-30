@@ -232,6 +232,7 @@ class AlicePlayer extends HTMLElement {
       this.wrapper.classList.remove('hidden');
       this.wrapper.innerHTML = this.debugOffset;
     } else {
+      this.log("Initializing player");
       this.init();
     }
   }
@@ -378,7 +379,7 @@ class PageController extends HTMLElement {
     this.state = "loading";
     this.endedState = true;
     this.debug = true;
-    this.debug = false;
+    // this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
     this.readyToPlay = false;
@@ -395,12 +396,12 @@ class PageController extends HTMLElement {
       this.prepVideo();
     });
 
-    if (this.debug === true) {
-      const el = document.createElement('li');
-      el.innerHTML = `<button class="example-button" data-id="m8vOrXIys6o" aria-label="Select">10 Second Test</button>`;
-      this.shadowRoot.querySelector('#example-buttons').appendChild(el);
-      this.shadowRoot.querySelector('#canvas').classList.add('debug');
-    }
+    // if (this.debug === true) {
+    //   const el = document.createElement('li');
+    //   el.innerHTML = `<button class="example-button" data-id="m8vOrXIys6o" aria-label="Select">10 Second Test</button>`;
+    //   this.shadowRoot.querySelector('#example-buttons').appendChild(el);
+    //   this.shadowRoot.querySelector('#canvas').classList.add('debug');
+    // }
 
     const buttons = this.shadowRoot.querySelectorAll('.example-button');
     buttons.forEach((button) => {
@@ -485,8 +486,8 @@ class PageController extends HTMLElement {
   }
 
   handleExampleButtonClick(event) {
-    this.state = 'preparing';
     this.log('handleExampleButtonClick');
+    this.state = 'preparing';
     this.input.value = `https://www.youtube.com/watch?v=${event.target.dataset.id}`;
     this.updateStatus();
     this.prepVideo();
@@ -521,10 +522,10 @@ class PageController extends HTMLElement {
     this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .90);
     // this.playerWidth = 100;
     // this.playerHeight = 48;
-    for (let columns = 1; columns < 100; columns += 2) {
+    for (let columns = 3; columns < 10; columns += 2) {
       // const checkWidth = Math.round(this.maxCanvasWidth / columns);
       const checkWidth = Math.round(this.maxCanvasWidth / columns);
-      if (checkWidth < 190) {
+      if (checkWidth < 220) {
         this.playerWidth = checkWidth;
         this.playerHeight = Math.round(checkWidth * 9 / 16);
         this.playerColumns = columns;
@@ -624,6 +625,7 @@ class PageController extends HTMLElement {
     this.state = 'loading';
     this.players = [];
     this.getDimensions();
+    this.log(`Number of players: ${this.playerCount}`);
     const urlInput = this.shadowRoot.querySelector('#url').value;
     const urlParams = new URL(urlInput).searchParams;
     this.videoId = urlParams.get('v');
