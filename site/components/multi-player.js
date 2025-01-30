@@ -68,7 +68,7 @@ controllerSheet.replaceSync(`
   color: #aaa;
   margin-top: 1rem;
   position: relative;
-  width: min(calc(100vw - 40px), 1400px);
+  width: calc(100vw - 40px);
   min-height: 90vh;
   margin-inline: auto;
 }
@@ -379,7 +379,7 @@ class PageController extends HTMLElement {
     this.state = "loading";
     this.endedState = true;
     this.debug = true;
-    // this.debug = false;
+    this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
     this.readyToPlay = false;
@@ -518,7 +518,7 @@ class PageController extends HTMLElement {
 
   getDimensions() {
     this.log("getDimensions");
-    this.maxCanvasWidth = Math.min(Math.floor(document.documentElement.clientWidth - 50), 1390);
+    this.maxCanvasWidth = Math.floor(document.documentElement.clientWidth - 50);
     this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .90);
     // this.playerWidth = 100;
     // this.playerHeight = 48;
@@ -529,7 +529,12 @@ class PageController extends HTMLElement {
         this.playerWidth = checkWidth;
         this.playerHeight = Math.round(checkWidth * 9 / 16);
         this.playerColumns = columns;
-        this.playerRows = Math.min(Math.floor(this.maxCanvasHeight / this.playerHeight), 7);
+        // this one caps the player rows at 7. turning off for now 
+        // since I think it'll naturally limit to about 7 on 
+        // widescreens and letting it go longer on phone is cool
+        //this.playerRows = Math.min(Math.floor(this.maxCanvasHeight / this.playerHeight), 7);
+        this.playerRows = Math.floor(this.maxCanvasHeight / this.playerHeight);
+        //
         this.playerCount = this.playerColumns * this.playerRows;
         // this sets up to put the audio player in a middle frame
         // up to three rows down
