@@ -137,6 +137,7 @@ h1 {
   align-items: center;
   z-index: 2;
   pointer-events: none;
+  transition: opacity 0.5s ease-in;
 }
 #playing {
   position: absolute;
@@ -166,16 +167,15 @@ strong {
 const controllerTemplate = document.createElement('template');
 controllerTemplate.innerHTML = `
 <div id="canvas">
-  <div id="players"></div>
+  <div id="players" class="hidden"></div>
   <div id="click-layer"><div>
   <div id="playing" class="hidden"><div>Playing</div></div>
   <div id="message" class="flow">
     <h1>Multi-Player</h1>
     <p>
       This page uses a lot of bandwidth. <strong>It will load
-      <span id="playerCount">##</span> videos at the
-      same time</strong>. It
-      won't work well without a good network connection 
+      <span id="playerCount">##</span> videos at its current size.</strong> 
+      It won't work well without a good network connection 
       and a newer device. Using it on a mobile 
       network is not recommended.
     </p>
@@ -597,6 +597,7 @@ class PageController extends HTMLElement {
     if (this.endedState === false) {
       this.playersReady = 0;
       this.shadowRoot.querySelector('#message').classList.remove('hidden');
+      this.shadowRoot.querySelector('#players').classList.add('hidden');
       this.endedState = true;
       this.state = "stopped";
     }
@@ -607,12 +608,10 @@ class PageController extends HTMLElement {
     if (this.state === "stopped") {
       this.log("state is stopped");
       this.shadowRoot.querySelector('#message').classList.add('hidden');
+      this.shadowRoot.querySelector('#players').classList.remove('hidden');
       this.log(this.players.length);
       const playingEl = this.shadowRoot.querySelector('#playing');
       playingEl.classList.remove('hidden');
-      // setTimeout(() => {
-      // this.shadowRoot.querySelector('#playing').classList.add('hidden');
-      // }, 100);
       this.players[this.audioPlayerIndex].unMute();
       // this.players[this.audioPlayerIndex].fullVolume()
       for (let count = 0; count < this.players.length; count += 1) {
@@ -636,6 +635,7 @@ class PageController extends HTMLElement {
       this.log('state: playing');
       this.playersReady = 0;
       this.shadowRoot.querySelector('#message').classList.remove('hidden');
+      this.shadowRoot.querySelector('#players').classList.add('hidden');
       this.players[this.audioPlayerIndex].mute();
       for (let count = 0; count < this.players.length; count += 1) {
         setTimeout(() => {
