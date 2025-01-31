@@ -2,6 +2,11 @@
 // filmstrip view. It was for different looks. 
 // I may play around with them again in the future
 // so leaving everything in for now. 
+//
+// There's also a lot of cruft in general from playing
+// around with functionality. I like leaving stuff
+// in comments as reference. You'll see a lot 
+// of that.
 
 function debounce(callback, wait) {
   let timeoutId = null;
@@ -522,17 +527,29 @@ class PageController extends HTMLElement {
     const urlInput = this.shadowRoot.querySelector('#url').value;
     if (urlInput) {
       try {
-      const url = new URL(urlInput);
-      if (url) {
-        const urlParams = new URL(urlInput).searchParams;
-        this.videoId = urlParams.get('v');
-        if (this.videoId && this.videoId.length === 11) {
-          this.showPlayButton();
-        } else {
-          this.state = 'invalid';
-          this.updateStatus();
+        const url = new URL(urlInput);
+        if (url) {
+          if (url.hostname === "youtu.be") {
+            const parts = url.pathname.split("/");
+            this.videoId = parts[1];
+            console.log(`ID: ${this.videoId}`);
+            if (this.videoId && this.videoId.length === 11) {
+              this.showPlayButton();
+            } else {
+              this.state = 'invalid';
+              this.updateStatus();
+            }
+          } else {
+            const urlParams = new URL(urlInput).searchParams;
+            this.videoId = urlParams.get('v');
+            if (this.videoId && this.videoId.length === 11) {
+              this.showPlayButton();
+            } else {
+              this.state = 'invalid';
+              this.updateStatus();
+            }
+          }
         }
-      }
       } catch (error) {
         this.state = 'invalid';
         this.updateStatus();
@@ -786,13 +803,10 @@ class PageController extends HTMLElement {
         this.iframeWidth += 4;
         this.iframeHeight += 4;
 
-
         // attempt to file 1px horizongal line 
         // TODO: Figure out which one of the above
         // this should go to
         // this.playerHeight = this.playerHeight - 1
-
-
 
         // this.iframeHeight = this.playerHeight;
         // if (this.ratioWidth !== 16) {
@@ -800,7 +814,6 @@ class PageController extends HTMLElement {
         // } else {
         //   this.iframeWidth = this.playerWidth;
         // }
-
 
         this.log(`${this.playerWidth} - ${this.playerHeight}`);
         this.log(`${this.iframeWidth} - ${this.iframeHeight}`);
@@ -840,6 +853,33 @@ class PageController extends HTMLElement {
         // this.centerColumn = 1;
         // console.log(`Audio Player Index: ${this.audioPlayerIndex}`);
         break;
+      }
+    }
+  }
+
+  // TODO: Refactor to only check length one time
+  getVideoId() {
+    const urlInput = this.shadowRoot.querySelector('#url').value.trim();
+    if (urlInput) {
+      try {
+        const url = new URL(urlInput);
+        if (url) {
+          if (url.hostname === "youtu.be") {
+            const parts = url.pathname.split("/");
+            this.videoId = parts[1];
+            if (this.videoId && this.videoId.length !== 11) {
+              this.videoId = null;
+            }
+          } else {
+            const urlParams = new URL(urlInput).searchParams;
+            this.videoId = urlParams.get('v');
+            if (this.videoId && this.videoId.length !== 11) {
+              this.videoId = null;
+            }
+          }
+        }
+      } catch (error) {
+        this.videoId = null;
       }
     }
   }
@@ -914,32 +954,28 @@ class PageController extends HTMLElement {
 
   prepVideo() {
     this.log('prepVideo');
-    const urlInput = this.shadowRoot.querySelector('#url').value;
-    if (urlInput) {
+    this.getVideoId();
+    if (this.videoId !== null) {
       this.state = 'loading';
       this.updateStatus();
       this.players = [];
       this.getDimensions();
       this.log(`Number of players: ${this.playerCount}`);
-      const urlParams = new URL(urlInput).searchParams;
-      this.videoId = urlParams.get('v');
-      if (this.videoId && this.videoId.length === 11) {
-        this.playersReady = 0;
-        this.state = 'loading';
-        const fragment = document.createDocumentFragment();
-        for (let count = 0; count < this.playerCount; count += 1) {
-          const el = document.createElement('alice-player');
-          el.setAttribute('wrapper-width', this.playerWidth);
-          el.setAttribute('wrapper-height', this.playerHeight);
-          el.setAttribute('iframe-width', this.iframeWidth);
-          el.setAttribute('iframe-height', this.iframeHeight);
-          el.setAttribute('video-id', this.videoId);
-          el.setAttribute('debug', this.debug);
-          fragment.appendChild(el);
-          this.players.push(el);
-        }
-        this.shadowRoot.querySelector('#players').replaceChildren(fragment);
+      this.playersReady = 0;
+      this.state = 'loading';
+      const fragment = document.createDocumentFragment();
+      for (let count = 0; count < this.playerCount; count += 1) {
+        const el = document.createElement('alice-player');
+        el.setAttribute('wrapper-width', this.playerWidth);
+        el.setAttribute('wrapper-height', this.playerHeight);
+        el.setAttribute('iframe-width', this.iframeWidth);
+        el.setAttribute('iframe-height', this.iframeHeight);
+        el.setAttribute('video-id', this.videoId);
+        el.setAttribute('debug', this.debug);
+        fragment.appendChild(el);
+        this.players.push(el);
       }
+      this.shadowRoot.querySelector('#players').replaceChildren(fragment);
     }
 
 
