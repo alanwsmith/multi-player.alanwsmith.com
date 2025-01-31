@@ -86,7 +86,7 @@ controllerSheet.replaceSync(`
   margin-top: 1rem;
   position: relative;
   width: calc(100vw - 40px);
-  min-height: 90vh;
+  min-height: 96vh;
   margin-inline: auto;
 }
 #canvas.debug {
@@ -213,11 +213,11 @@ controllerTemplate.innerHTML = `
       <fieldset class="ratios">
         <legend>Aspect Ratio</legend>
         <div>
-          <input id="ratio16x9" type="radio" name="ratio" value="16x9" />
+          <input id="ratio16x9" type="radio" name="ratio" value="16x9" checked />
           <label for="ratio16x9">16x9</label>
         </div>
         <div>
-          <input id="ratio4x3" type="radio" name="ratio" value="4x3" checked />
+          <input id="ratio4x3" type="radio" name="ratio" value="4x3" />
           <label for="ratio4x3">4x3</label>
         </div>
         <!--
@@ -590,7 +590,17 @@ class PageController extends HTMLElement {
 
   handleExampleButtonClick(event) {
     this.log('handleExampleButtonClick');
-    this.input.value = `https://www.youtube.com/watch?v=${event.target.dataset.id}`;
+    const videoId = event.target.dataset.id;
+    const ratiosOf4x3 = [
+      'jt7AF2RCMhg',
+      '5IsSpAOD6K8'
+    ];
+    if (ratiosOf4x3.includes(videoId)) {
+      this.shadowRoot.querySelector('#ratio4x3').checked = true;
+    } else {
+      this.shadowRoot.querySelector('#ratio16x9').checked = true;
+    }
+    this.input.value = `https://www.youtube.com/watch?v=${videoId}`;
     this.prepVideo();
   }
 
@@ -631,7 +641,7 @@ class PageController extends HTMLElement {
   getDimensions() {
     this.log("getDimensions");
     this.maxCanvasWidth = Math.floor(document.documentElement.clientWidth - 50);
-    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .90);
+    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .96);
 
     const ratio = this.shadowRoot.querySelector('input[name="ratio"]:checked').value;
     this.log(`Ratio: ${ratio}`);
