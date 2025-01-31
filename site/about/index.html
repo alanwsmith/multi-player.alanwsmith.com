@@ -230,22 +230,15 @@ footer {
         The videos come from YouTube via their 
         <a href="https://developers.google.com/youtube/iframe_api_reference">iFrame API</a>.
         It lets you embed videos on a page 
-        and control them with JavaScript. 
+        and control them with JavaScript. The
+        title isn't available in the API. Otherwise,
+        I'd display it while the videos are loading.
       </p>
       <p>
-        While the iFrame API is pretty solid, it's missing
-        a couple 'nice-to-haves'. Specifically, the title
-        and duration of the video. Displaying
-        the title while the video is loading would
-        be a nice touch. With the duration, I could
-        add a nicer fade out at the end. 
+        (There are ways to get the title from other 
+        APIs. That's more complexity than I want to
+        include at the moment)
       </p>
-      <p>
-        Those details are available in other YouTube
-        APIs. Adding them was more complexity than
-        I wanted to get into at the moment. 
-      </p>
-
       <h3>Web Components</h3>
       <p>
         The page is built from vanilla web 
