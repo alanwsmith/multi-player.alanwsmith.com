@@ -514,6 +514,7 @@ class PageController extends HTMLElement {
     this.offsetPadding = 34;
     this.readyToPlay = false;
     this.showLogs = true;
+    this.apisReady = 0;
   }
 
   confirmVideo() {
@@ -577,6 +578,11 @@ class PageController extends HTMLElement {
       radioButton.addEventListener('change', () => {
         this.handleRatioButtonChange();
       });
+    });
+
+    this.shadowRoot.addEventListener('apiLoaded', (event) => {
+      this.apisReady += 1;
+      this.updateStatus();
     });
 
     this.shadowRoot.addEventListener('playerReady', (event) => {
@@ -698,7 +704,11 @@ class PageController extends HTMLElement {
       this.state = "stopped";
       setTimeout(() => { this.handleDoPlay() }, 1800);
     } else if (this.state === 'loading') {
-      this.shadowRoot.querySelector('#status').innerHTML = `Loading: ${this.playersReady} of ${this.playerCount}`;
+      if (this.playersReady === 0) {
+        this.shadowRoot.querySelector('#status').innerHTML = `Preparing: ${this.apisReady} of ${this.playerCount}`;
+      } else {
+        this.shadowRoot.querySelector('#status').innerHTML = `Loading: ${this.playersReady} of ${this.playerCount}`;
+      }
     } else if (this.state === 'invalid') {
       this.shadowRoot.querySelector('#status').innerHTML = `Link is not a valid YouTube video`;
     } else if (this.state === 'ready-to-play') {
