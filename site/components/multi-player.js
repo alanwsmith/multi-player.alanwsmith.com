@@ -505,6 +505,13 @@ class PageController extends HTMLElement {
     let clickLayer = this.shadowRoot.querySelector('#click-layer');
     clickLayer.addEventListener('click', this.handleCanvasClick.bind(this, event));
 
+    const radioButtons = this.shadowRoot.querySelectorAll('input[name="ratio"]');
+    radioButtons.forEach((radioButton) => {
+      radioButton.addEventListener('change', () => {
+        this.handleRatioButtonChange();
+      });
+    });
+
     this.shadowRoot.addEventListener('playerReady', (event) => {
       this.playersReady += 1;
       this.updateStatus();
@@ -579,14 +586,17 @@ class PageController extends HTMLElement {
     //   }
     // });
 
-
   }
 
   handleExampleButtonClick(event) {
     this.log('handleExampleButtonClick');
-    this.state = 'preparing';
     this.input.value = `https://www.youtube.com/watch?v=${event.target.dataset.id}`;
-    this.updateStatus();
+    this.prepVideo();
+  }
+
+  handleRatioButtonChange(event) {
+    this.log("handleRarioButtonChange");
+    this.updateMessageCount();
     this.prepVideo();
   }
 
@@ -753,32 +763,38 @@ class PageController extends HTMLElement {
     }
   }
 
-
   prepVideo() {
     this.log('prepVideo');
-    this.state = 'loading';
-    this.players = [];
-    this.getDimensions();
-    this.log(`Number of players: ${this.playerCount}`);
+
     const urlInput = this.shadowRoot.querySelector('#url').value;
-    const urlParams = new URL(urlInput).searchParams;
-    this.videoId = urlParams.get('v');
-    if (this.videoId && this.videoId.length === 11) {
-      this.playersReady = 0;
+    if (urlInput) {
+      this.state = 'prepping';
+      this.updateStatus();
       this.state = 'loading';
-      const fragment = document.createDocumentFragment();
-      for (let count = 0; count < this.playerCount; count += 1) {
-        const el = document.createElement('alice-player');
-        el.setAttribute('wrapper-width', this.playerWidth);
-        el.setAttribute('wrapper-height', this.playerHeight);
-        el.setAttribute('iframe-width', this.iframeWidth);
-        el.setAttribute('iframe-height', this.iframeHeight);
-        el.setAttribute('video-id', this.videoId);
-        el.setAttribute('debug', this.debug);
-        fragment.appendChild(el);
-        this.players.push(el);
+      this.players = [];
+      this.getDimensions();
+      this.log(`Number of players: ${this.playerCount}`);
+
+
+      const urlParams = new URL(urlInput).searchParams;
+      this.videoId = urlParams.get('v');
+      if (this.videoId && this.videoId.length === 11) {
+        this.playersReady = 0;
+        this.state = 'loading';
+        const fragment = document.createDocumentFragment();
+        for (let count = 0; count < this.playerCount; count += 1) {
+          const el = document.createElement('alice-player');
+          el.setAttribute('wrapper-width', this.playerWidth);
+          el.setAttribute('wrapper-height', this.playerHeight);
+          el.setAttribute('iframe-width', this.iframeWidth);
+          el.setAttribute('iframe-height', this.iframeHeight);
+          el.setAttribute('video-id', this.videoId);
+          el.setAttribute('debug', this.debug);
+          fragment.appendChild(el);
+          this.players.push(el);
+        }
+        this.shadowRoot.querySelector('#players').replaceChildren(fragment);
       }
-      this.shadowRoot.querySelector('#players').replaceChildren(fragment);
     }
 
 
