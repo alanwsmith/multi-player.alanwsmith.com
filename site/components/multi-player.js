@@ -633,7 +633,7 @@ class PageController extends HTMLElement {
         // iframeWidth and iframeHeight. 
         // TODO: rename those to make more sense 
         // once dev is done.
-        this.playerWidth = checkWidth;
+        this.playerWidth = checkWidth - 1; // drop one pixel to prevent occasional line
         this.playerHeight = Math.round(checkWidth * this.ratioHeight / this.ratioWidth); 
 
         this.iframeHeight = this.playerHeight;
