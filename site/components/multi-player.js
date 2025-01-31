@@ -78,6 +78,7 @@ controllerSheet.replaceSync(`
 :host {
   display: block;
   margin: 0;
+  font-size: 1.1rem;
 }
 #canvas {
   position: relative;
@@ -104,6 +105,11 @@ controllerSheet.replaceSync(`
 }
 h1 {
   font-size: 1.3rem;
+  font-weight: 900;
+  margin-top: 0;
+}
+h2 {
+  font-size: 1.1rem;
   font-weight: 900;
   margin-top: 0;
 }
@@ -186,13 +192,7 @@ controllerTemplate.innerHTML = `
     <p>
       This page uses a lot of bandwidth. <strong>It will load
       <span id="playerCount">##</span> videos at its current size.</strong> 
-      It won't work well without a good network connection 
-      or a newer device. Using it on a mobile 
-      network is not recommended.
-    </p>
-    <p>
-      The visuals can include flashing lights and motion which may
-      affect sensitive viewers.
+      See warnings below.
     </p>
     <p>
       Choose an example or use your own YouTube link
@@ -211,7 +211,7 @@ controllerTemplate.innerHTML = `
         <input type="text" id="url" value="" />
       </fieldset>
       <fieldset class="ratios">
-        <legend>Ratio</legend>
+        <legend>Aspect Ratio</legend>
         <div>
           <input id="ratio16x9" type="radio" name="ratio" value="16x9" />
           <label for="ratio16x9">16x9</label>
@@ -229,15 +229,26 @@ controllerTemplate.innerHTML = `
       </fieldset>
       <div id="status">&nbsp;</div>
     </div>
+
+    <h2>Warnings</h2>
     <p>
-      Videos with ads won't work well. If the videos
-      don't sync well you can try reloading the page.
+      The visuals can include flashing lights and motion 
+      which may affect sensitive viewers.
+    </p>
+    <p>
+      It won't work well without a good network connection 
+      or a newer device. Using it on a mobile 
+      network is not recommended. 
     </p>
     <p>
       I used the player heavily during development without 
       issue. That said, it sends
       a lot of requets to YouTube from your connection at the
       same time. Use at your own risk. 
+    </p>
+    <p>
+      Videos with ads won't work well. If the videos
+      don't sync well you can try reloading the page.
     </p>
   </div>
 </div>
@@ -480,8 +491,6 @@ class PageController extends HTMLElement {
       el.dataset['dataId'] = 'm8vOrXIys6o';
       // TODO: Figure out how to add the aria label
       el.innerHTML = '10s Test';
-
-      // el.innerHTML = `<button class="example-button" data-id="" aria-label="Select">10 Second Test</button>`;
       this.shadowRoot.querySelector('#example-buttons').appendChild(el);
       this.shadowRoot.querySelector('#canvas').style.outline = '3px solid green';
     }
