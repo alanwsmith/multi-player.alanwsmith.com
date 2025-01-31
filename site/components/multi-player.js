@@ -189,6 +189,14 @@ h2 {
 #url {
   width: 90%;
 }
+#status {
+  text-align: right;
+  padding-bottom: 1rem;
+  line-height: 1.8;
+}
+#status button {
+  font-size: var(--medium-font-size);
+}
 strong {
   color: #faa;
 }
@@ -207,6 +215,7 @@ controllerTemplate.innerHTML = `
       <span id="playerCount">##</span> videos at its current size.</strong> 
       See warnings below.
     </p>
+    <hr />
     <p>
       Choose an example or use your own YouTube link
     </p>
@@ -221,7 +230,7 @@ controllerTemplate.innerHTML = `
     <div>
       <fieldset>
         <legend>YouTube link</legend>
-        <input type="text" id="url" value="" />
+        <input type="text" id="url" placeholder="Pick a video or paste a link" />
       </fieldset>
       <fieldset class="ratios">
         <legend>Aspect Ratio</legend>
@@ -244,8 +253,9 @@ controllerTemplate.innerHTML = `
         </div>
         -->
       </fieldset>
-      <div id="status">&nbsp;</div>
     </div>
+    <div id="status">waiting for video...</div>
+    <hr />
 
     <h2>Warnings</h2>
     <p>
@@ -460,6 +470,7 @@ class AlicePlayer extends HTMLElement {
       console.log(message);
     }
   }
+
   startVideo() {
     this.player.playVideo();
     // unhide after the youtube ui
@@ -505,6 +516,28 @@ class PageController extends HTMLElement {
     this.showLogs = true;
   }
 
+  confirmVideo() {
+    this.log('Confirming Video');
+    const urlInput = this.shadowRoot.querySelector('#url').value;
+    if (urlInput) {
+      try {
+      const url = new URL(urlInput);
+      if (url) {
+        const urlParams = new URL(urlInput).searchParams;
+        this.videoId = urlParams.get('v');
+        if (this.videoId && this.videoId.length === 11) {
+          this.showPlayButton();
+        } else {
+          this.state = 'invalid';
+          this.updateStatus();
+        }
+      }
+      } catch (error) {
+        this.state = 'invalid';
+        this.updateStatus();
+      }
+    }
+  }
 
   connectedCallback() {
     if (this.debug === true) {
@@ -513,9 +546,10 @@ class PageController extends HTMLElement {
 
     this.input = this.shadowRoot.querySelector('#url');
     this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
-      this.state = 'changed';
-      this.updateStatus();
-      this.prepVideo();
+      // this.state = 'changed';
+      // this.updateStatus();
+      this.confirmVideo();
+      // this.prepVideo();
     });
 
     if (this.debug === true) {
@@ -639,13 +673,18 @@ class PageController extends HTMLElement {
       this.shadowRoot.querySelector('#ratio16x9').checked = true;
     }
     this.input.value = `https://www.youtube.com/watch?v=${videoId}`;
-    this.prepVideo();
+    this.updateMessageCount();
+    this.confirmVideo();
   }
 
   handleRatioButtonChange(event) {
     this.log("handleRarioButtonChange");
     this.updateMessageCount();
-    this.prepVideo();
+  }
+
+  showPlayButton() {
+    this.state = 'ready-to-play';
+    this.updateStatus();
   }
 
   updateMessageCount() {
@@ -654,14 +693,19 @@ class PageController extends HTMLElement {
   }
 
   updateStatus() {
-    if (this.state === 'loading') {
-      if (this.playersReady === this.playerCount) {
-        setTimeout(() => {this.doReadyToPlay()}, 700);
-      } else {
-        this.shadowRoot.querySelector('#status').innerHTML = `Loading: ${this.playersReady} of ${this.playerCount}`;
-      }
+    if (this.playersReady === this.playerCount) {
+      this.shadowRoot.querySelector('#status').innerHTML = `Loading: ${this.playersReady} of ${this.playerCount}`;
+      this.state = "stopped";
+      setTimeout(() => { this.handleDoPlay() }, 1800);
+    } else if (this.state === 'loading') {
+      this.shadowRoot.querySelector('#status').innerHTML = `Loading: ${this.playersReady} of ${this.playerCount}`;
+    } else if (this.state === 'invalid') {
+      this.shadowRoot.querySelector('#status').innerHTML = `Link is not a valid YouTube video`;
+    } else if (this.state === 'ready-to-play') {
+      this.doReadyToPlay();
+      // this.shadowRoot.querySelector('#status').innerHTML = `Ready to play`;
     } else {
-      this.shadowRoot.querySelector('#status').innerHTML = `Preparing... (please stand by)`;
+      this.shadowRoot.querySelector('#status').innerHTML = `...`;
     }
   }
 
@@ -669,7 +713,7 @@ class PageController extends HTMLElement {
     this.log("doReadyToPlay");
     this.state = "stopped";
     this.readyToPlay = true;
-    this.shadowRoot.querySelector('#status').innerHTML = '<button id="play-button" aria-label="Play">Play</button>';
+    this.shadowRoot.querySelector('#status').innerHTML = '<button id="play-button" aria-label="Play">Load and Play</button>';
     this.shadowRoot.querySelector('#play-button').addEventListener(
       'click', 
       this.handlePlayButtonClick.bind(this, event)
@@ -702,7 +746,7 @@ class PageController extends HTMLElement {
         // iframeWidth and iframeHeight. 
         // TODO: rename those to make more sense 
         // once dev is done.
-        this.playerWidth = checkWidth - 1; // drop one pixel to prevent occasional line
+        this.playerWidth = checkWidth; // drop one pixel to prevent occasional line
         this.playerHeight = Math.round(checkWidth * this.ratioHeight / this.ratioWidth); 
 
         const baseRatio = 16/9;
@@ -728,10 +772,15 @@ class PageController extends HTMLElement {
           }
         }
 
+        // attempt to prevent single pixel off errors
+        this.iframeWidth += 2;
+        this.iframeHeight += 2;
+
+
         // attempt to file 1px horizongal line 
         // TODO: Figure out which one of the above
         // this should go to
-        this.playerHeight = this.playerHeight - 1
+        // this.playerHeight = this.playerHeight - 1
 
 
 
@@ -793,11 +842,16 @@ class PageController extends HTMLElement {
       this.shadowRoot.querySelector('#players').classList.add('hidden');
       this.endedState = true;
       this.state = "stopped";
+      this.confirmVideo();
     }
   }
 
   async handlePlayButtonClick() {
-    this.log("handlePlayButtonClick");
+    this.prepVideo();
+  }
+
+  handleDoPlay() {
+    this.log("handleDoPlay");
     if (this.state === "stopped") {
       this.log("state is stopped");
       this.shadowRoot.querySelector('#message').classList.add('hidden');
@@ -818,7 +872,6 @@ class PageController extends HTMLElement {
         this.endedState = false;
         playingEl.classList.add('hidden');
       }, 200);
-      //this.shadowRoot.querySelector('#canvas').addEventListener('click', this.handlePlayButtonClick);
     }
   }
 
@@ -837,6 +890,7 @@ class PageController extends HTMLElement {
       }
       this.state = "stopped";
       this.endedState = true;
+      this.confirmVideo();
     }
   }
 
@@ -848,17 +902,13 @@ class PageController extends HTMLElement {
 
   prepVideo() {
     this.log('prepVideo');
-
     const urlInput = this.shadowRoot.querySelector('#url').value;
     if (urlInput) {
-      this.state = 'prepping';
-      this.updateStatus();
       this.state = 'loading';
+      this.updateStatus();
       this.players = [];
       this.getDimensions();
       this.log(`Number of players: ${this.playerCount}`);
-
-
       const urlParams = new URL(urlInput).searchParams;
       this.videoId = urlParams.get('v');
       if (this.videoId && this.videoId.length === 11) {
@@ -933,6 +983,7 @@ class PageController extends HTMLElement {
     //     this.doReadyToPlay();
     //   }
     // });
+
   }
 
   // async handlePlayButtonClickStarPatternNotAsGood() {
