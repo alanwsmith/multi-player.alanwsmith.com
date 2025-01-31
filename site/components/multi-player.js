@@ -27,10 +27,16 @@ aliceSheet.replaceSync(`
 #wrapper {
   color: #aaa;
   display: flex;
+  justify-content: center;
+  align-items: center;
   transition: opacity 0.9s ease-in;
+  overflow: hidden;
 }
 #wrapper.hidden {
   transition: opacity 0s;
+}
+#player {
+  position: relative;
 }
 /*
 .audio-player {
@@ -72,6 +78,7 @@ controllerSheet.replaceSync(`
 :host {
   display: block;
   margin: 0;
+  font-size: 1.1rem;
 }
 #canvas {
   position: relative;
@@ -79,7 +86,7 @@ controllerSheet.replaceSync(`
   margin-top: 1rem;
   position: relative;
   width: calc(100vw - 40px);
-  min-height: 90vh;
+  min-height: 96vh;
   margin-inline: auto;
 }
 #canvas.debug {
@@ -98,6 +105,11 @@ controllerSheet.replaceSync(`
 }
 h1 {
   font-size: 1.3rem;
+  font-weight: 900;
+  margin-top: 0;
+}
+h2 {
+  font-size: 1.1rem;
   font-weight: 900;
   margin-top: 0;
 }
@@ -156,6 +168,11 @@ h1 {
 #playing.hidden {
   transition: opacity 2.7s ease-in;
 }
+.ratios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
 #url {
   width: 90%;
 }
@@ -175,45 +192,67 @@ controllerTemplate.innerHTML = `
     <p>
       This page uses a lot of bandwidth. <strong>It will load
       <span id="playerCount">##</span> videos at its current size.</strong> 
-      It won't work well without a good network connection 
-      or a newer device. Using it on a mobile 
-      network is not recommended.
-    </p>
-    <p>
-      The visuals can include flashing lights and motion which may
-      affect sensitive viewers.
+      See warnings below.
     </p>
     <p>
       Choose an example or use your own YouTube link
     </p>
-    <div class="flex">
+    <div id="example-buttons" class="flex">
       <button class="example-button" data-id="REPPgPcw4hk" aria-label="Select">CDK</button>
       <button class="example-button" data-id="12zJw9varYE" aria-label="Select">OK Go</button>
       <button class="example-button" data-id="jt7AF2RCMhg" aria-label="Select">Pogo</button>
       <button class="example-button" data-id="8bOtuoNFzB0" aria-label="Select">Queen</button>
+      <button class="example-button" data-id="5IsSpAOD6K8" aria-label="Select">Talking Heads</button>
       <button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift</button>
     </div>
     <div>
-      <label for="url">YouTube link:</label>
-      <div>
+      <fieldset>
+        <legend>YouTube link</legend>
         <input type="text" id="url" value="" />
-      </div>
+      </fieldset>
+      <fieldset class="ratios">
+        <legend>Aspect Ratio</legend>
+        <div>
+          <input id="ratio16x9" type="radio" name="ratio" value="16x9" checked />
+          <label for="ratio16x9">16x9</label>
+        </div>
+        <div>
+          <input id="ratio4x3" type="radio" name="ratio" value="4x3" />
+          <label for="ratio4x3">4x3</label>
+        </div>
+        <!--
+        <div>
+          <input type="radio" name="ratio" value="custom" />
+          <input type="text" id="ratio-width" size="2" value="16" />x<input type="text" id="ratio-height" size="2" value="9" />
+        </div>
+        -->
+      </fieldset>
       <div id="status">&nbsp;</div>
     </div>
+
+    <h2>Warnings</h2>
     <p>
-      Videos with ads won't work well. If the videos
-      don't sync well you can try reloading the page.
+      The visuals can include flashing lights and motion 
+      which may affect sensitive viewers.
+    </p>
+    <p>
+      The page won't work well without a good network connection 
+      or a newer device. Using it on a mobile 
+      network is not recommended. 
     </p>
     <p>
       I used the player heavily during development without 
       issue. That said, it sends
-      a lot of requets to YouTube from your connection at the
+      a lot of requests to YouTube from your connection at the
       same time. Use at your own risk. 
+    </p>
+    <p>
+      Videos with ads won't work well. If the videos
+      don't sync well you can try reloading the page.
     </p>
   </div>
 </div>
 `
-
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -232,26 +271,52 @@ class AlicePlayer extends HTMLElement {
 
   connectedCallback() {
     this.audioPlayer = this.getAttribute('audio-player') === 'yes' ? true : false;
-    if (this.audioPlayer === true) {
-      this.wrapper.classList.add('audio-player');
-    } else {
-      this.wrapper.classList.remove('audio-player');
-    }
-    this.width = parseInt(this.getAttribute('width'), 10);
-    this.height = parseInt(this.getAttribute('height'), 10);
-    this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
+
+    // if (this.audioPlayer === true) {
+    //   this.wrapper.classList.add('audio-player');
+    // } else {
+    //   this.wrapper.classList.remove('audio-player');
+    // }
+
+    // width here is the iframe width
+    this.width = parseInt(this.getAttribute('iframe-width'), 10);
+    this.height = parseInt(this.getAttribute('iframe-height'), 10);
+    // wrapper width is what is labled as playerwidth
+    // in the controller until a rename can
+    // take place
+
+    this.wrapperWidth = parseInt(this.getAttribute('wrapper-width'), 10);
+    this.wrapperHeight = parseInt(this.getAttribute('wrapper-height'), 10);
+    this.wrapper.style.width = `${this.wrapperWidth}px`;
+    this.wrapper.style.height = `${this.wrapperHeight}px`;
+
+    //console.log(this.wrapperWidth);
+
+
+    // testing for 4:3
+    // this.wrapper.style.width = `${Math.round(this.height * 4 / 3) - 1}px`;
+
+    // const p = this.shadowRoot.querySelector('#player');
+    // p.style.left = `-10px`;
+    
+
+
+    // this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
     this.debug = this.getAttribute('debug') === 'false' ? false : true;
-    this.borderStyle = this.getAttribute('border-style');
+    // this.borderStyle = this.getAttribute('border-style');
+    // this.wrapper.classList.add(this.borderStyle);
     this.videoId = this.getAttribute('video-id');
     // console.log(this.borderStyle);
-    this.wrapper.classList.add(this.borderStyle);
     if (this.debug === true) {
       this.log("Debugging on");
-      this.style.width = `${this.width}px`;
-      this.style.height = `${this.height}px`;
-      this.style.outline = '1px solid maroon';
+      // this.style.width = `${this.width}px`;
+      // this.style.height = `${this.height}px`;
+      // this.style.width = `${this.wrapperWidth}px`;
+      // this.style.height = `${this.wrapperHeight}px`;
+      // this.style.outline = '1px solid purple';
       this.wrapper.classList.remove('hidden');
-      this.wrapper.innerHTML = this.debugOffset;
+      this.wrapper.style.outline = `1px solid blue`;
+      // this.wrapper.innerHTML = this.debugOffset;
     } else {
       this.log("Initializing player");
       this.init();
@@ -407,7 +472,12 @@ class PageController extends HTMLElement {
     this.showLogs = true;
   }
 
+
   connectedCallback() {
+    if (this.debug === true) {
+      this.shadowRoot.querySelector('#players').classList.remove('hidden');
+    }
+
     this.input = this.shadowRoot.querySelector('#url');
     this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
       this.state = 'changed';
@@ -415,12 +485,15 @@ class PageController extends HTMLElement {
       this.prepVideo();
     });
 
-    // if (this.debug === true) {
-    //   const el = document.createElement('li');
-    //   el.innerHTML = `<button class="example-button" data-id="m8vOrXIys6o" aria-label="Select">10 Second Test</button>`;
-    //   this.shadowRoot.querySelector('#example-buttons').appendChild(el);
-    //   this.shadowRoot.querySelector('#canvas').classList.add('debug');
-    // }
+    if (this.debug === true) {
+      const el = document.createElement('button');
+      el.classList.add('example-button');
+      el.dataset['dataId'] = 'm8vOrXIys6o';
+      // TODO: Figure out how to add the aria label
+      el.innerHTML = '10s Test';
+      this.shadowRoot.querySelector('#example-buttons').appendChild(el);
+      this.shadowRoot.querySelector('#canvas').style.outline = '3px solid green';
+    }
 
     const buttons = this.shadowRoot.querySelectorAll('.example-button');
     buttons.forEach((button) => {
@@ -431,6 +504,13 @@ class PageController extends HTMLElement {
 
     let clickLayer = this.shadowRoot.querySelector('#click-layer');
     clickLayer.addEventListener('click', this.handleCanvasClick.bind(this, event));
+
+    const radioButtons = this.shadowRoot.querySelectorAll('input[name="ratio"]');
+    radioButtons.forEach((radioButton) => {
+      radioButton.addEventListener('change', () => {
+        this.handleRatioButtonChange();
+      });
+    });
 
     this.shadowRoot.addEventListener('playerReady', (event) => {
       this.playersReady += 1;
@@ -506,14 +586,27 @@ class PageController extends HTMLElement {
     //   }
     // });
 
-
   }
 
   handleExampleButtonClick(event) {
     this.log('handleExampleButtonClick');
-    this.state = 'preparing';
-    this.input.value = `https://www.youtube.com/watch?v=${event.target.dataset.id}`;
-    this.updateStatus();
+    const videoId = event.target.dataset.id;
+    const ratiosOf4x3 = [
+      'jt7AF2RCMhg',
+      '5IsSpAOD6K8'
+    ];
+    if (ratiosOf4x3.includes(videoId)) {
+      this.shadowRoot.querySelector('#ratio4x3').checked = true;
+    } else {
+      this.shadowRoot.querySelector('#ratio16x9').checked = true;
+    }
+    this.input.value = `https://www.youtube.com/watch?v=${videoId}`;
+    this.prepVideo();
+  }
+
+  handleRatioButtonChange(event) {
+    this.log("handleRarioButtonChange");
+    this.updateMessageCount();
     this.prepVideo();
   }
 
@@ -548,15 +641,42 @@ class PageController extends HTMLElement {
   getDimensions() {
     this.log("getDimensions");
     this.maxCanvasWidth = Math.floor(document.documentElement.clientWidth - 50);
-    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .90);
-    // this.playerWidth = 100;
-    // this.playerHeight = 48;
-    for (let columns = 3; columns < 10; columns += 2) {
+    this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .96);
+
+    const ratio = this.shadowRoot.querySelector('input[name="ratio"]:checked').value;
+    this.log(`Ratio: ${ratio}`);
+    if (ratio === '4x3') {
+      this.ratioWidth = 4;
+      this.ratioHeight = 3;
+    } else {
+      this.ratioWidth = 16;
+      this.ratioHeight = 9;
+    }
+
+    for (let columns = 3; columns < 20; columns += 2) {
       // const checkWidth = Math.round(this.maxCanvasWidth / columns);
       const checkWidth = Math.round(this.maxCanvasWidth / columns);
       if (checkWidth < 210) {
-        this.playerWidth = checkWidth;
-        this.playerHeight = Math.round(checkWidth * 9 / 16);
+        // NOTE: These are called playerWidth and playerHeight
+        // but they are really the wrapper. The iframe is
+        // iframeWidth and iframeHeight. 
+        // TODO: rename those to make more sense 
+        // once dev is done.
+        this.playerWidth = checkWidth - 1; // drop one pixel to prevent occasional line
+        this.playerHeight = Math.round(checkWidth * this.ratioHeight / this.ratioWidth); 
+
+        this.iframeHeight = this.playerHeight;
+        if (this.ratio !== "16x9") {
+          this.iframeWidth = Math.round(this.iframeHeight / 9 * 16);
+        }
+
+        this.log(`${this.playerWidth} - ${this.playerHeight}`);
+        this.log(`${this.iframeWidth} - ${this.iframeHeight}`);
+
+        // original
+        // this.playerWidth = checkWidth;
+        // this.playerHeight = Math.round(checkWidth * 9 / 16);
+
         this.playerColumns = columns;
         // this one caps the player rows at 7. turning off for now 
         // since I think it'll naturally limit to about 7 on 
@@ -653,30 +773,38 @@ class PageController extends HTMLElement {
     }
   }
 
-
   prepVideo() {
     this.log('prepVideo');
-    this.state = 'loading';
-    this.players = [];
-    this.getDimensions();
-    this.log(`Number of players: ${this.playerCount}`);
+
     const urlInput = this.shadowRoot.querySelector('#url').value;
-    const urlParams = new URL(urlInput).searchParams;
-    this.videoId = urlParams.get('v');
-    if (this.videoId && this.videoId.length === 11) {
-      this.playersReady = 0;
+    if (urlInput) {
+      this.state = 'prepping';
+      this.updateStatus();
       this.state = 'loading';
-      const fragment = document.createDocumentFragment();
-      for (let count = 0; count < this.playerCount; count += 1) {
-        const el = document.createElement('alice-player');
-        el.setAttribute('width', this.playerWidth);
-        el.setAttribute('height', this.playerHeight);
-        el.setAttribute('video-id', this.videoId);
-        el.setAttribute('debug', this.debug);
-        fragment.appendChild(el);
-        this.players.push(el);
+      this.players = [];
+      this.getDimensions();
+      this.log(`Number of players: ${this.playerCount}`);
+
+
+      const urlParams = new URL(urlInput).searchParams;
+      this.videoId = urlParams.get('v');
+      if (this.videoId && this.videoId.length === 11) {
+        this.playersReady = 0;
+        this.state = 'loading';
+        const fragment = document.createDocumentFragment();
+        for (let count = 0; count < this.playerCount; count += 1) {
+          const el = document.createElement('alice-player');
+          el.setAttribute('wrapper-width', this.playerWidth);
+          el.setAttribute('wrapper-height', this.playerHeight);
+          el.setAttribute('iframe-width', this.iframeWidth);
+          el.setAttribute('iframe-height', this.iframeHeight);
+          el.setAttribute('video-id', this.videoId);
+          el.setAttribute('debug', this.debug);
+          fragment.appendChild(el);
+          this.players.push(el);
+        }
+        this.shadowRoot.querySelector('#players').replaceChildren(fragment);
       }
-      this.shadowRoot.querySelector('#players').replaceChildren(fragment);
     }
 
 
