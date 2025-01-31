@@ -847,6 +847,7 @@ class PageController extends HTMLElement {
   handleEnded() {
     this.log('handleEnded');
     if (this.endedState === false) {
+      this.apisReady = 0;
       this.playersReady = 0;
       this.shadowRoot.querySelector('#message').classList.remove('hidden');
       this.shadowRoot.querySelector('#players').classList.add('hidden');
