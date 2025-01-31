@@ -113,7 +113,7 @@ a:hover, a:focus {
 .footer {
   margin-top: var(--xlarge-margin);
   margin-bottom: var(--medium-margin);
-  font-size: var(--medium-font-size);
+  font-size: var(--small-font-size);
   text-align: center;
 }
 h1 {
@@ -727,6 +727,13 @@ class PageController extends HTMLElement {
             this.iframeHeight = this.playerHeight;
           }
         }
+
+        // attempt to file 1px horizongal line 
+        // TODO: Figure out which one of the above
+        // this should go to
+        this.playerHeight = this.playerHeight - 1
+
+
 
         // this.iframeHeight = this.playerHeight;
         // if (this.ratioWidth !== 16) {
