@@ -236,14 +236,14 @@ controllerTemplate.innerHTML = `
       which may affect sensitive viewers.
     </p>
     <p>
-      It won't work well without a good network connection 
+      The page won't work well without a good network connection 
       or a newer device. Using it on a mobile 
       network is not recommended. 
     </p>
     <p>
       I used the player heavily during development without 
       issue. That said, it sends
-      a lot of requets to YouTube from your connection at the
+      a lot of requests to YouTube from your connection at the
       same time. Use at your own risk. 
     </p>
     <p>
