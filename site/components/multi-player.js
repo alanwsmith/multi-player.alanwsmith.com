@@ -685,10 +685,18 @@ class PageController extends HTMLElement {
     this.ratioWidth = parseInt(ratio.dataset.width);
     this.ratioHeight = parseInt(ratio.dataset.height);
 
+    if (this.ratioWidth === 239) {
+      this.maxWrapperWidth = 310;
+    } else if (this.ratioWidth === 4) {
+      this.maxWrapperWidth = 190;
+    } else {
+      this.maxWrapperWidth = 210;
+    }
+
     for (let columns = 3; columns < 20; columns += 2) {
       // const checkWidth = Math.round(this.maxCanvasWidth / columns);
       const checkWidth = Math.round(this.maxCanvasWidth / columns);
-      if (checkWidth < 210) {
+      if (checkWidth < this.maxWrapperWidth) {
         // NOTE: These are called playerWidth and playerHeight
         // but they are really the wrapper. The iframe is
         // iframeWidth and iframeHeight. 
