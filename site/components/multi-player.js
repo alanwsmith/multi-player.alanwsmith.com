@@ -80,6 +80,13 @@ controllerSheet.replaceSync(`
   margin: 0;
   font-size: 1.1rem;
 }
+a {
+  text-decoration: none;
+  color: var(--accent-color-2);
+}
+a:hover, a:focus {
+  color: var(--accent-color-3);
+}
 #canvas {
   position: relative;
   color: #aaa;
@@ -102,6 +109,12 @@ controllerSheet.replaceSync(`
 }
 .flow > :where(:not(:first-child)) {
   margin-top: var(--flow-space, 1em);
+}
+.footer {
+  margin-top: var(--xlarge-margin);
+  margin-bottom: var(--medium-margin);
+  font-size: var(--medium-font-size);
+  text-align: center;
 }
 h1 {
   font-size: 1.3rem;
@@ -213,11 +226,15 @@ controllerTemplate.innerHTML = `
       <fieldset class="ratios">
         <legend>Aspect Ratio</legend>
         <div>
-          <input id="ratio16x9" type="radio" name="ratio" value="16x9" checked />
+          <input id="ratio16x9" type="radio" name="ratio" value="16x9" data-width="16" data-height="9" checked />
           <label for="ratio16x9">16x9</label>
         </div>
         <div>
-          <input id="ratio4x3" type="radio" name="ratio" value="4x3" />
+          <input id="ratio14x6" type="radio" name="ratio" value="14x6" data-width="14" data-height="6" />
+          <label for="ratio14x6">14x6</label>
+        </div>
+        <div>
+          <input id="ratio4x3" type="radio" name="ratio" value="4x3" data-width="4" data-height="3" />
           <label for="ratio4x3">4x3</label>
         </div>
         <!--
@@ -250,6 +267,17 @@ controllerTemplate.innerHTML = `
       Videos with ads won't work well. If the videos
       don't sync well you can try reloading the page.
     </p>
+  </div>
+  <div class="footer">
+    <div>
+      made by <a href="https://www.alanwsmith.com">alan w smith</a>
+    </div>
+    <div>
+      <a href="/about/">about</a> ~
+      <a href="https://github.com/alanwsmith/multi-player.alanwsmith.com">source code</a> ~
+      <a href="https://links.alanwsmith.com">other projects</a> ~
+      <a href="https://socials.alanwsmith.com">socials</a>
+    </div>
   </div>
 </div>
 `
@@ -317,6 +345,11 @@ class AlicePlayer extends HTMLElement {
       this.wrapper.classList.remove('hidden');
       this.wrapper.style.outline = `1px solid blue`;
       // this.wrapper.innerHTML = this.debugOffset;
+      const playerEl = this.shadowRoot.querySelector('#player');
+      playerEl.innerHTML = "x";
+      playerEl.style.width = `${this.width}px`;
+      playerEl.style.height = `${this.height}px`;
+      playerEl.style.outline = `3px solid maroon`;
     } else {
       this.log("Initializing player");
       this.init();
@@ -465,7 +498,7 @@ class PageController extends HTMLElement {
     this.state = "loading";
     this.endedState = true;
     this.debug = true;
-    this.debug = false;
+    // this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
     this.readyToPlay = false;
@@ -591,12 +624,17 @@ class PageController extends HTMLElement {
   handleExampleButtonClick(event) {
     this.log('handleExampleButtonClick');
     const videoId = event.target.dataset.id;
+    const ratiosOf14x6 = [
+      '8bOtuoNFzB0'
+    ]
     const ratiosOf4x3 = [
       'jt7AF2RCMhg',
       '5IsSpAOD6K8'
     ];
     if (ratiosOf4x3.includes(videoId)) {
       this.shadowRoot.querySelector('#ratio4x3').checked = true;
+    } else if (ratiosOf14x6.includes(videoId)) {
+      this.shadowRoot.querySelector('#ratio14x6').checked = true;
     } else {
       this.shadowRoot.querySelector('#ratio16x9').checked = true;
     }
@@ -643,15 +681,9 @@ class PageController extends HTMLElement {
     this.maxCanvasWidth = Math.floor(document.documentElement.clientWidth - 50);
     this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .96);
 
-    const ratio = this.shadowRoot.querySelector('input[name="ratio"]:checked').value;
-    this.log(`Ratio: ${ratio}`);
-    if (ratio === '4x3') {
-      this.ratioWidth = 4;
-      this.ratioHeight = 3;
-    } else {
-      this.ratioWidth = 16;
-      this.ratioHeight = 9;
-    }
+    const ratio = this.shadowRoot.querySelector('input[name="ratio"]:checked');
+    this.ratioWidth = parseInt(ratio.dataset.width);
+    this.ratioHeight = parseInt(ratio.dataset.height);
 
     for (let columns = 3; columns < 20; columns += 2) {
       // const checkWidth = Math.round(this.maxCanvasWidth / columns);
@@ -666,9 +698,16 @@ class PageController extends HTMLElement {
         this.playerHeight = Math.round(checkWidth * this.ratioHeight / this.ratioWidth); 
 
         this.iframeHeight = this.playerHeight;
-        if (this.ratio !== "16x9") {
+        if (this.ratioWidth !== 16) {
           this.iframeWidth = Math.round(this.iframeHeight / 9 * 16);
+        } else {
+          this.iframeWidth = this.playerWidth;
         }
+
+        // this.iframeHeight = this.playerHeight;
+        // if (this.ratioWidth !== 16) {
+        //   this.iframeWidth = Math.round(this.iframeHeight / 9 * 16);
+        // }
 
         this.log(`${this.playerWidth} - ${this.playerHeight}`);
         this.log(`${this.iframeWidth} - ${this.iframeHeight}`);
