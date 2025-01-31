@@ -890,6 +890,7 @@ class PageController extends HTMLElement {
     this.log('handleCanvasClick');
     if (this.state === "playing") {
       this.log('state: playing');
+      this.apisReady = 0;
       this.playersReady = 0;
       this.shadowRoot.querySelector('#message').classList.remove('hidden');
       this.shadowRoot.querySelector('#players').classList.add('hidden');
