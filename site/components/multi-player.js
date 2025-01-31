@@ -783,8 +783,8 @@ class PageController extends HTMLElement {
         }
 
         // attempt to prevent single pixel off errors
-        this.iframeWidth += 2;
-        this.iframeHeight += 2;
+        this.iframeWidth += 4;
+        this.iframeHeight += 4;
 
 
         // attempt to file 1px horizongal line 
