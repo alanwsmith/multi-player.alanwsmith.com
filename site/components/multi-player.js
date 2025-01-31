@@ -230,8 +230,8 @@ controllerTemplate.innerHTML = `
           <label for="ratio16x9">16x9</label>
         </div>
         <div>
-          <input id="ratio14x6" type="radio" name="ratio" value="14x6" data-width="14" data-height="6" />
-          <label for="ratio14x6">14x6</label>
+          <input id="ratio239x100" type="radio" name="ratio" value="239x100" data-width="239" data-height="100" />
+          <label for="ratio239x100">2.39:1</label>
         </div>
         <div>
           <input id="ratio4x3" type="radio" name="ratio" value="4x3" data-width="4" data-height="3" />
@@ -498,7 +498,7 @@ class PageController extends HTMLElement {
     this.state = "loading";
     this.endedState = true;
     this.debug = true;
-    // this.debug = false;
+    this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
     this.readyToPlay = false;
@@ -624,7 +624,7 @@ class PageController extends HTMLElement {
   handleExampleButtonClick(event) {
     this.log('handleExampleButtonClick');
     const videoId = event.target.dataset.id;
-    const ratiosOf14x6 = [
+    const ratiosOf239x100 = [
       '8bOtuoNFzB0'
     ]
     const ratiosOf4x3 = [
@@ -633,8 +633,8 @@ class PageController extends HTMLElement {
     ];
     if (ratiosOf4x3.includes(videoId)) {
       this.shadowRoot.querySelector('#ratio4x3').checked = true;
-    } else if (ratiosOf14x6.includes(videoId)) {
-      this.shadowRoot.querySelector('#ratio14x6').checked = true;
+    } else if (ratiosOf239x100.includes(videoId)) {
+      this.shadowRoot.querySelector('#ratio239x100').checked = true;
     } else {
       this.shadowRoot.querySelector('#ratio16x9').checked = true;
     }
@@ -697,17 +697,36 @@ class PageController extends HTMLElement {
         this.playerWidth = checkWidth - 1; // drop one pixel to prevent occasional line
         this.playerHeight = Math.round(checkWidth * this.ratioHeight / this.ratioWidth); 
 
-        this.iframeHeight = this.playerHeight;
-        if (this.ratioWidth !== 16) {
-          this.iframeWidth = Math.round(this.iframeHeight / 9 * 16);
+        const baseRatio = 16/9;
+        const currentRatio = this.ratioWidth / this.ratioHeight;
+
+        // one of these checks against 16 is unnecessary
+        // but I'm too tired to figure out which and it's
+        // not hurting anything so it gets to hang out 
+        // for a while. 
+        if (baseRatio >= currentRatio) {
+          this.iframeHeight = this.playerHeight;
+          if (this.ratioWidth !== 16) {
+            this.iframeWidth = Math.round(this.iframeHeight / 9 * 16);
+          } else {
+            this.iframeWidth = this.playerWidth;
+          }
         } else {
           this.iframeWidth = this.playerWidth;
+          if (this.ratioWidth !== 16) {
+            this.iframeHeight = Math.round(this.iframeWidth * 9 / 16);
+          } else {
+            this.iframeHeight = this.playerHeight;
+          }
         }
 
         // this.iframeHeight = this.playerHeight;
         // if (this.ratioWidth !== 16) {
         //   this.iframeWidth = Math.round(this.iframeHeight / 9 * 16);
+        // } else {
+        //   this.iframeWidth = this.playerWidth;
         // }
+
 
         this.log(`${this.playerWidth} - ${this.playerHeight}`);
         this.log(`${this.iframeWidth} - ${this.iframeHeight}`);
