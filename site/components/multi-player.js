@@ -197,7 +197,7 @@ controllerTemplate.innerHTML = `
     <p>
       Choose an example or use your own YouTube link
     </p>
-    <div class="flex">
+    <div id="example-buttons" class="flex">
       <button class="example-button" data-id="REPPgPcw4hk" aria-label="Select">CDK</button>
       <button class="example-button" data-id="12zJw9varYE" aria-label="Select">OK Go</button>
       <button class="example-button" data-id="jt7AF2RCMhg" aria-label="Select">Pogo</button>
@@ -260,13 +260,27 @@ class AlicePlayer extends HTMLElement {
 
   connectedCallback() {
     this.audioPlayer = this.getAttribute('audio-player') === 'yes' ? true : false;
-    if (this.audioPlayer === true) {
-      this.wrapper.classList.add('audio-player');
-    } else {
-      this.wrapper.classList.remove('audio-player');
-    }
-    this.width = parseInt(this.getAttribute('width'), 10);
-    this.height = parseInt(this.getAttribute('height'), 10);
+
+    // if (this.audioPlayer === true) {
+    //   this.wrapper.classList.add('audio-player');
+    // } else {
+    //   this.wrapper.classList.remove('audio-player');
+    // }
+
+    // width here is the iframe width
+    this.width = parseInt(this.getAttribute('iframe-width'), 10);
+    this.height = parseInt(this.getAttribute('iframe-height'), 10);
+    // wrapper width is what is labled as playerwidth
+    // in the controller until a rename can
+    // take place
+
+    this.wrapperWidth = parseInt(this.getAttribute('wrapper-width'), 10);
+    this.wrapperHeight = parseInt(this.getAttribute('wrapper-height'), 10);
+    this.wrapper.style.width = `${this.wrapperWidth}px`;
+    this.wrapper.style.height = `${this.wrapperHeight}px`;
+
+    //console.log(this.wrapperWidth);
+
 
     // testing for 4:3
     // this.wrapper.style.width = `${Math.round(this.height * 4 / 3) - 1}px`;
@@ -275,18 +289,22 @@ class AlicePlayer extends HTMLElement {
     // p.style.left = `-10px`;
     
 
+
     // this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
     this.debug = this.getAttribute('debug') === 'false' ? false : true;
-    this.borderStyle = this.getAttribute('border-style');
+    // this.borderStyle = this.getAttribute('border-style');
+    // this.wrapper.classList.add(this.borderStyle);
     this.videoId = this.getAttribute('video-id');
     // console.log(this.borderStyle);
-    this.wrapper.classList.add(this.borderStyle);
     if (this.debug === true) {
       this.log("Debugging on");
-      this.style.width = `${this.width}px`;
-      this.style.height = `${this.height}px`;
-      this.style.outline = '1px solid maroon';
+      // this.style.width = `${this.width}px`;
+      // this.style.height = `${this.height}px`;
+      // this.style.width = `${this.wrapperWidth}px`;
+      // this.style.height = `${this.wrapperHeight}px`;
+      // this.style.outline = '1px solid purple';
       this.wrapper.classList.remove('hidden');
+      this.wrapper.style.outline = `1px solid blue`;
       // this.wrapper.innerHTML = this.debugOffset;
     } else {
       this.log("Initializing player");
@@ -436,7 +454,7 @@ class PageController extends HTMLElement {
     this.state = "loading";
     this.endedState = true;
     this.debug = true;
-    // this.debug = false;
+    this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
     this.readyToPlay = false;
@@ -456,12 +474,17 @@ class PageController extends HTMLElement {
       this.prepVideo();
     });
 
-    // if (this.debug === true) {
-    //   const el = document.createElement('li');
-    //   el.innerHTML = `<button class="example-button" data-id="m8vOrXIys6o" aria-label="Select">10 Second Test</button>`;
-    //   this.shadowRoot.querySelector('#example-buttons').appendChild(el);
-    //   this.shadowRoot.querySelector('#canvas').classList.add('debug');
-    // }
+    if (this.debug === true) {
+      const el = document.createElement('button');
+      el.classList.add('example-button');
+      el.dataset['dataId'] = 'm8vOrXIys6o';
+      // TODO: Figure out how to add the aria label
+      el.innerHTML = '10s Test';
+
+      // el.innerHTML = `<button class="example-button" data-id="" aria-label="Select">10 Second Test</button>`;
+      this.shadowRoot.querySelector('#example-buttons').appendChild(el);
+      this.shadowRoot.querySelector('#canvas').style.outline = '3px solid green';
+    }
 
     const buttons = this.shadowRoot.querySelectorAll('.example-button');
     buttons.forEach((button) => {
@@ -737,8 +760,8 @@ class PageController extends HTMLElement {
       const fragment = document.createDocumentFragment();
       for (let count = 0; count < this.playerCount; count += 1) {
         const el = document.createElement('alice-player');
-        el.setAttribute('width', this.playerWidth);
-        el.setAttribute('height', this.playerHeight);
+        el.setAttribute('wrapper-width', this.playerWidth);
+        el.setAttribute('wrapper-height', this.playerHeight);
         el.setAttribute('iframe-width', this.iframeWidth);
         el.setAttribute('iframe-height', this.iframeHeight);
         el.setAttribute('video-id', this.videoId);
