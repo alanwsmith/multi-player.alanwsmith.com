@@ -27,10 +27,16 @@ aliceSheet.replaceSync(`
 #wrapper {
   color: #aaa;
   display: flex;
+  justify-content: center;
+  align-items: center;
   transition: opacity 0.9s ease-in;
+  overflow: hidden;
 }
 #wrapper.hidden {
   transition: opacity 0s;
+}
+#player {
+  position: relative;
 }
 /*
 .audio-player {
@@ -156,6 +162,11 @@ h1 {
 #playing.hidden {
   transition: opacity 2.7s ease-in;
 }
+.ratios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
 #url {
   width: 90%;
 }
@@ -191,13 +202,31 @@ controllerTemplate.innerHTML = `
       <button class="example-button" data-id="12zJw9varYE" aria-label="Select">OK Go</button>
       <button class="example-button" data-id="jt7AF2RCMhg" aria-label="Select">Pogo</button>
       <button class="example-button" data-id="8bOtuoNFzB0" aria-label="Select">Queen</button>
+      <button class="example-button" data-id="5IsSpAOD6K8" aria-label="Select">Talking Heads</button>
       <button class="example-button" data-id="q3zqJs7JUCQ" aria-label="Select">Taylor Swift</button>
     </div>
     <div>
-      <label for="url">YouTube link:</label>
-      <div>
+      <fieldset>
+        <legend>YouTube link</legend>
         <input type="text" id="url" value="" />
-      </div>
+      </fieldset>
+      <fieldset class="ratios">
+        <legend>Ratio</legend>
+        <div>
+          <input id="ratio16x9" type="radio" name="ratio" value="16x9" />
+          <label for="ratio16x9">16x9</label>
+        </div>
+        <div>
+          <input id="ratio4x3" type="radio" name="ratio" value="4x3" checked />
+          <label for="ratio4x3">4x3</label>
+        </div>
+        <!--
+        <div>
+          <input type="radio" name="ratio" value="custom" />
+          <input type="text" id="ratio-width" size="2" value="16" />x<input type="text" id="ratio-height" size="2" value="9" />
+        </div>
+        -->
+      </fieldset>
       <div id="status">&nbsp;</div>
     </div>
     <p>
@@ -213,7 +242,6 @@ controllerTemplate.innerHTML = `
   </div>
 </div>
 `
-
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -239,7 +267,15 @@ class AlicePlayer extends HTMLElement {
     }
     this.width = parseInt(this.getAttribute('width'), 10);
     this.height = parseInt(this.getAttribute('height'), 10);
-    this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
+
+    // testing for 4:3
+    // this.wrapper.style.width = `${Math.round(this.height * 4 / 3) - 1}px`;
+
+    // const p = this.shadowRoot.querySelector('#player');
+    // p.style.left = `-10px`;
+    
+
+    // this.debugOffset = parseInt(this.getAttribute('debugOffset'), 10);
     this.debug = this.getAttribute('debug') === 'false' ? false : true;
     this.borderStyle = this.getAttribute('border-style');
     this.videoId = this.getAttribute('video-id');
@@ -251,7 +287,7 @@ class AlicePlayer extends HTMLElement {
       this.style.height = `${this.height}px`;
       this.style.outline = '1px solid maroon';
       this.wrapper.classList.remove('hidden');
-      this.wrapper.innerHTML = this.debugOffset;
+      // this.wrapper.innerHTML = this.debugOffset;
     } else {
       this.log("Initializing player");
       this.init();
@@ -400,14 +436,19 @@ class PageController extends HTMLElement {
     this.state = "loading";
     this.endedState = true;
     this.debug = true;
-    this.debug = false;
+    // this.debug = false;
     this.playerOffsets = [];
     this.offsetPadding = 34;
     this.readyToPlay = false;
     this.showLogs = true;
   }
 
+
   connectedCallback() {
+    if (this.debug === true) {
+      this.shadowRoot.querySelector('#players').classList.remove('hidden');
+    }
+
     this.input = this.shadowRoot.querySelector('#url');
     this.shadowRoot.querySelector('#url').addEventListener('input', (event) => {
       this.state = 'changed';
@@ -549,14 +590,41 @@ class PageController extends HTMLElement {
     this.log("getDimensions");
     this.maxCanvasWidth = Math.floor(document.documentElement.clientWidth - 50);
     this.maxCanvasHeight = Math.floor(document.documentElement.clientHeight * .90);
-    // this.playerWidth = 100;
-    // this.playerHeight = 48;
-    for (let columns = 3; columns < 10; columns += 2) {
+
+    const ratio = this.shadowRoot.querySelector('input[name="ratio"]:checked').value;
+    this.log(`Ratio: ${ratio}`);
+    if (ratio === '4x3') {
+      this.ratioWidth = 4;
+      this.ratioHeight = 3;
+    } else {
+      this.ratioWidth = 16;
+      this.ratioHeight = 9;
+    }
+
+    for (let columns = 3; columns < 20; columns += 2) {
       // const checkWidth = Math.round(this.maxCanvasWidth / columns);
       const checkWidth = Math.round(this.maxCanvasWidth / columns);
       if (checkWidth < 210) {
+        // NOTE: These are called playerWidth and playerHeight
+        // but they are really the wrapper. The iframe is
+        // iframeWidth and iframeHeight. 
+        // TODO: rename those to make more sense 
+        // once dev is done.
         this.playerWidth = checkWidth;
-        this.playerHeight = Math.round(checkWidth * 9 / 16);
+        this.playerHeight = Math.round(checkWidth * this.ratioHeight / this.ratioWidth); 
+
+        this.iframeHeight = this.playerHeight;
+        if (this.ratio !== "16x9") {
+          this.iframeWidth = Math.round(this.iframeHeight / 9 * 16);
+        }
+
+        this.log(`${this.playerWidth} - ${this.playerHeight}`);
+        this.log(`${this.iframeWidth} - ${this.iframeHeight}`);
+
+        // original
+        // this.playerWidth = checkWidth;
+        // this.playerHeight = Math.round(checkWidth * 9 / 16);
+
         this.playerColumns = columns;
         // this one caps the player rows at 7. turning off for now 
         // since I think it'll naturally limit to about 7 on 
@@ -671,6 +739,8 @@ class PageController extends HTMLElement {
         const el = document.createElement('alice-player');
         el.setAttribute('width', this.playerWidth);
         el.setAttribute('height', this.playerHeight);
+        el.setAttribute('iframe-width', this.iframeWidth);
+        el.setAttribute('iframe-height', this.iframeHeight);
         el.setAttribute('video-id', this.videoId);
         el.setAttribute('debug', this.debug);
         fragment.appendChild(el);
